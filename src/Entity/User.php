@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Table(name="users")
+ *
  * @UniqueEntity(
  *     "email",
  *     message="This email is already taken"
@@ -35,6 +37,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=25)
+     * @Assert\NotBlank()
      */
     private $username;
 
@@ -44,6 +47,11 @@ class User implements UserInterface
     private $password;
 
     private $plainPassword;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
 
     public function getId(): ?int
     {
@@ -99,7 +107,7 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function setPlainPassword($plainPassword): self
+    public function setPlainPassword(string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;
         return $this;
@@ -123,7 +131,18 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
-        return ["ROLE_USER"];
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 
     /**
@@ -135,6 +154,7 @@ class User implements UserInterface
      */
     public function getSalt(): ?string
     {
+        return null;
     }
 
     /**
