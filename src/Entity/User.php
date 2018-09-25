@@ -31,13 +31,22 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Email()
+     * @Assert\Email(
+     *     message = "'{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=25)
      * @Assert\NotBlank()
+     * @Assert\Length(
+     *      min = 5,
+     *      max = 25,
+     *      minMessage = "Username must be at least {{ limit }} characters long",
+     *      maxMessage = "Username cannot be longer than {{ limit }} characters"
+     * )
      */
     private $username;
 
@@ -46,12 +55,21 @@ class User implements UserInterface
      */
     private $password;
 
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *      min = 8,
+     *      max = 50,
+     *      minMessage = "Password must be at least {{ limit }} characters long",
+     *      maxMessage = "Password cannot be longer than {{ limit }} characters"
+     * )
+     */
     private $plainPassword;
 
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    private $roles = ['ROLE_USER'];
 
     public function getId(): ?int
     {
