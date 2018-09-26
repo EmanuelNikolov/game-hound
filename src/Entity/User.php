@@ -67,6 +67,20 @@ class User implements UserInterface
     private $plainPassword;
 
     /**
+     * @var null|string
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $emailConfirmationToken;
+
+    /**
+     * @var null|string
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $passwordResetToken;
+
+    /**
      * @ORM\Column(type="json")
      */
     private $roles = ['ROLE_USER'];
@@ -128,6 +142,44 @@ class User implements UserInterface
     public function setPlainPassword(string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmailConfirmationToken(): ?string
+    {
+        return $this->emailConfirmationToken;
+    }
+
+    /**
+     * @param string $emailConfirmationToken
+     *
+     * @return User
+     */
+    public function setEmailConfirmationToken(string $emailConfirmationToken
+    ): User {
+        $this->emailConfirmationToken = $emailConfirmationToken;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    /**
+     * @param string $passwordResetToken
+     *
+     * @return User
+     */
+    public function setPasswordResetToken(string $passwordResetToken): User
+    {
+        $this->passwordResetToken = $passwordResetToken;
         return $this;
     }
 
