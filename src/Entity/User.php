@@ -71,14 +71,7 @@ class User implements UserInterface
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $emailConfirmationToken;
-
-    /**
-     * @var null|string
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $passwordResetToken;
+    private $confirmationToken;
 
     /**
      * @ORM\Column(type="json")
@@ -148,38 +141,19 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getEmailConfirmationToken(): ?string
+    public function getConfirmationToken(): ?string
     {
-        return $this->emailConfirmationToken;
+        return $this->confirmationToken;
     }
 
     /**
-     * @param string $emailConfirmationToken
+     * @param string $confirmationToken
      *
      * @return User
      */
-    public function setEmailConfirmationToken(string $emailConfirmationToken
+    public function setConfirmationToken(string $confirmationToken
     ): User {
-        $this->emailConfirmationToken = $emailConfirmationToken;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPasswordResetToken(): ?string
-    {
-        return $this->passwordResetToken;
-    }
-
-    /**
-     * @param string $passwordResetToken
-     *
-     * @return User
-     */
-    public function setPasswordResetToken(string $passwordResetToken): User
-    {
-        $this->passwordResetToken = $passwordResetToken;
+        $this->confirmationToken = $confirmationToken;
         return $this;
     }
 
