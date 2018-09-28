@@ -13,8 +13,6 @@ class Mailer implements MailerInterface
 
     private const PASSWORD_RESET_EMAIL_TEMPLATE = "email/password_reset.html.twig";
 
-    private const FROM_EMAIL = "";
-
     /**
      * @var \Twig_Environment
      */
@@ -33,7 +31,7 @@ class Mailer implements MailerInterface
     /**
      * @var array
      */
-    private $parameters;
+    public $parameters;
 
     /**
      * Mailer constructor.
@@ -41,24 +39,39 @@ class Mailer implements MailerInterface
      * @param \Twig_Environment $twig
      * @param \Swift_Mailer $mailer
      * @param RouterInterface $router
-//     * @param array $parameters
+     * @param array $parameters
      */
     public function __construct(
+      array $parameters,
       \Twig_Environment $twig,
       \Swift_Mailer $mailer,
       RouterInterface $router
-//      array $parameters
     ) {
+        $this->parameters = $parameters;
         $this->twig = $twig;
         $this->mailer = $mailer;
         $this->router = $router;
-//        $this->parameters = $parameters;
     }
 
 
     public function sendConfirmationEmail(User $user)
     {
+        $templateName = $this->parameters['confirmation'];
+        $confirmationURL = $this->router->generate('user_email_confirm', [
+          'token' => $user->getConfirmationToken(),
+        ]);
 
+        $templateData = [
+          'user' => $user,
+          'confirmationURL' => $confirmationURL,
+        ];
+
+        $this->sendEmail(
+          $this->parameters['from_email'],
+          $user->getEmail(),
+          $templateName,
+          $templateData
+        );
     }
 
     public function sendPasswordResetEmail(User $user)
@@ -66,12 +79,17 @@ class Mailer implements MailerInterface
         // TODO: Implement sendPasswordResetEmail() method.
     }
 
-    private function sendEmail(string $from, string $to, string $templateName)
-    {
+    private function sendEmail(
+      string $from,
+      string $to,
+      string $templateName,
+      array $templateData
+    ) {
         $template = $this->twig->load($templateName);
         $subject = $template->renderBlock('subject');
-        $body = $template->renderBlock('body_html');
+        $body = $template->renderBlock('body_html', $templateData);
 
+        // TODO: add simple text part, maybe template data object too?
         $message = (new \Swift_Message())
           ->setSubject($subject)
           ->setFrom($from)

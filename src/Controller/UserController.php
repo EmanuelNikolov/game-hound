@@ -24,6 +24,8 @@ class UserController extends AbstractController
 
     private const EMAIL_CONFIRM_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound ( ͡°з ͡°)";
 
+    private const EMAIL_CONFIRM_ALREADY_DONE = "You have already verified your email ¯\_(⊙_ʖ⊙)_/¯";
+
     private $guardAuthenticatorHandler;
 
     private $userLoginAuthenticator;
@@ -109,16 +111,20 @@ class UserController extends AbstractController
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
+        // TODO: put that logic in a separate service
         if (!$user) {
+            if (!in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
+                $this->addFlash('notice', self::EMAIL_CONFIRM_ALREADY_DONE);
+            }
             $this->addFlash('danger', self::EMAIL_CONFIRM_INVALID_TOKEN);
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('security_login');
         }
 
         if (!$user->isEqualTo($this->getUser())) {
             $this->addFlash('danger', self::EMAIL_CONFIRM_USER_DIFF);
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('security_login');
         }
 
         $user->setConfirmationToken(null);
@@ -137,11 +143,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/profile", name="user_profile", methods={"GET"})
+     * @Route("/{username}", name="user_profile", methods={"GET"})
      *
      * @param \App\Entity\User $user
      */
-    public function profile()
+    public function profile(User $user)
     {
         die('sex');
     }

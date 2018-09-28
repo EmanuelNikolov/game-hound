@@ -7,14 +7,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
+
     /**
      * @Route("/", name="home", methods={"GET"})
      */
     public function index()
     {
-        dd($this->getUser());
         return $this->render('home/index.html.twig', [
-            'controller_name' => 'HomeController',
+          'controller_name' => 'HomeController',
         ]);
     }
 }

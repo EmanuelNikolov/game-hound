@@ -6,7 +6,11 @@
 # TODO: add parameters for mailing service
 parameters:
     locale: 'en'
-    mailer.user.templates: test
+
+    mailer.user.templates:
+      confirmation: 'email/confirmation.html.twig'
+      resetting: 'email/resetting.html.twig'
+      from_email: 'tester@abv.bg'
 
 services:
     # default configuration for services in *this* file
@@ -31,5 +35,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Service\Mailer:
-        arguments: ['%mailer.user.templates%']
+    App\Service\Mailer\Mailer:
+        arguments:
+          - '%mailer.user.templates%'
