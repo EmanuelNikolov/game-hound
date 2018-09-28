@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -20,8 +21,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     message="This username is already taken"
  * )
  */
-class User implements UserInterface
+class User implements UserInterface, EquatableInterface
 {
+
+    public const ROLE_USER_UNCONFIRMED = "ROLE_USER_UNCONFIRMED";
+
+    public const ROLE_USER_CONFIRMED = "ROLE_USER_CONFIRMED";
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -74,9 +80,22 @@ class User implements UserInterface
     private $confirmationToken;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $active;
+
+    /**
      * @ORM\Column(type="json")
      */
-    private $roles = ['ROLE_USER'];
+    private $roles;
+
+    public function __construct()
+    {
+        $this->roles = [self::ROLE_USER_UNCONFIRMED];
+        $this->active = true;
+    }
 
     public function getId(): ?int
     {
@@ -151,33 +170,44 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function setConfirmationToken(string $confirmationToken
+    public function setConfirmationToken(?string $confirmationToken
     ): User {
         $this->confirmationToken = $confirmationToken;
         return $this;
     }
 
     /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param bool $active
+     *
+     * @return User
+     */
+    public function setActive(bool $active): User
+    {
+        $this->active = $active;
+        return $this;
+    }
+
+    /**
      * Returns the roles granted to the user.
-     *
-     * <code>
-     * public function getRoles()
-     * {
-     *     return array('ROLE_USER');
-     * }
-     * </code>
-     *
-     * Alternatively, the roles might be stored on a ``roles`` property,
-     * and populated in any number of different ways when the user object
-     * is created.
      *
      * @return array (Role|string)[] The user roles
      */
     public function getRoles(): array
     {
         $roles = $this->roles;
+
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        if (empty($roles)) {
+            $roles[] = self::ROLE_USER_UNCONFIRMED;
+        }
 
         return array_unique($roles);
     }
@@ -210,5 +240,33 @@ class User implements UserInterface
     public function eraseCredentials(): void
     {
         $this->plainPassword = null;
+    }
+
+    /**
+     * The equality comparison should neither be done by referential equality
+     * nor by comparing identities (i.e. getId() === getId()).
+     *
+     * However, you do not need to compare every attribute, but only those that
+     * are relevant for assessing whether re-authentication is required.
+     *
+     * @param \Symfony\Component\Security\Core\User\UserInterface $user
+     *
+     * @return bool
+     */
+    public function isEqualTo(UserInterface $user)
+    {
+        if (!$user instanceof self) {
+            return false;
+        }
+
+        if ($this->username !== $user->getUsername()) {
+            return false;
+        }
+
+        if ($this->password !== $user->getPassword()) {
+            return false;
+        }
+
+        return true;
     }
 }

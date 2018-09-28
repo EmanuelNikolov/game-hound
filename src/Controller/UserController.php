@@ -7,7 +7,6 @@ use App\Event\UserRegisteredEvent;
 use App\Form\UserRegisterType;
 use App\Security\UserLoginAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,11 +16,13 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 class UserController extends AbstractController
 {
 
-    private const REGISTER_SUCCESS_MESSAGE = "Yay! Your account was created, a verification link was sent to your email :)";
+    private const REGISTER_SUCCESS_MESSAGE = "Yay! Your account was created, a verification link was sent to your email (つ ♡ ͜ʖ ♡)つ";
 
-    private const EMAIL_CONFIRM_FAIL = "Invalid token :(";
+    private const EMAIL_CONFIRM_INVALID_TOKEN = "Invalid token ¯\_( ͡° ͜ʖ ͡°)_/¯";
 
-    private const EMAIL_CONFIRMED_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound <3";
+    private const EMAIL_CONFIRM_USER_DIFF = "You must be logged into your account to confirm your email ( ͡ಠ ʖ̯ ͡ಠ)";
+
+    private const EMAIL_CONFIRM_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound ( ͡°з ͡°)";
 
     private $guardAuthenticatorHandler;
 
@@ -53,10 +54,8 @@ class UserController extends AbstractController
     public function register(
       Request $request,
       UserPasswordEncoderInterface $userPasswordEncoder,
-      EventDispatcherInterface $eventDispatcher,
-    ParameterBagInterface $bag
+      EventDispatcherInterface $eventDispatcher
     ) {
-        dd($bag->set('mailer.user.templates', 'shkrr'));
         $user = new User();
         $form = $this->createForm(UserRegisterType::class, $user);
         $form->handleRequest($request);
@@ -105,20 +104,28 @@ class UserController extends AbstractController
       Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
+
         /** @var \App\Entity\User $user */
         $user = $em->getRepository(User::class)
-          ->findOneByEmailConfirmationToken($token);
+          ->findOneByConfirmationToken($token);
 
         if (!$user) {
-            $this->addFlash('danger', self::EMAIL_CONFIRM_FAIL);
+            $this->addFlash('danger', self::EMAIL_CONFIRM_INVALID_TOKEN);
 
             return $this->redirectToRoute('home');
         }
 
-        $user->setEmailConfirmationToken(null);
+        if (!$user->isEqualTo($this->getUser())) {
+            $this->addFlash('danger', self::EMAIL_CONFIRM_USER_DIFF);
+
+            return $this->redirectToRoute('home');
+        }
+
+        $user->setConfirmationToken(null);
+        $user->setRoles([User::ROLE_USER_CONFIRMED]);
         $em->flush();
 
-        $this->addFlash('success', self::EMAIL_CONFIRMED_SUCCESS);
+        $this->addFlash('success', self::EMAIL_CONFIRM_SUCCESS);
 
         return $this->guardAuthenticatorHandler
           ->authenticateUserAndHandleSuccess(
@@ -127,5 +134,15 @@ class UserController extends AbstractController
             $this->userLoginAuthenticator,
             'main'
           );
+    }
+
+    /**
+     * @Route("/profile", name="user_profile", methods={"GET"})
+     *
+     * @param \App\Entity\User $user
+     */
+    public function profile()
+    {
+        die('sex');
     }
 }
