@@ -3,12 +3,13 @@
 namespace App\EventSubscriber;
 
 
-use App\Event\UserRegisteredEvent;
+use App\Entity\User;
+use App\Event\UserEvent;
 use App\Service\Mailer\MailerInterface;
 use App\Utils\TokenCreatorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UserRegisteredSubscriber implements EventSubscriberInterface
+class EmailConfirmationSubscriber implements EventSubscriberInterface
 {
 
     /**
@@ -22,7 +23,7 @@ class UserRegisteredSubscriber implements EventSubscriberInterface
     private $tokenCreator;
 
     /**
-     * UserRegisteredSubscriber constructor.
+     * EmailConfirmationSubscriber constructor.
      *
      * @param MailerInterface $mailer
      * @param TokenCreatorInterface $tokenCreator
@@ -39,16 +40,24 @@ class UserRegisteredSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-          UserRegisteredEvent::NAME => 'sendConfirmationEmail',
+          UserEvent::REGISTER_REQUEST => 'handleRegisterRequest',
+            UserEvent::REGISTER_CONFIRM => 'handleRegisterConfirm'
         ];
     }
 
-    public function sendConfirmationEmail(UserRegisteredEvent $event)
+    public function handleRegisterRequest(UserEvent $event)
     {
         $user = $event->getUser();
         $emailConfirmToken = $this->tokenCreator->createToken();
         $user->setConfirmationToken($emailConfirmToken);
 
-        $this->mailer->sendConfirmationEmail($user);
+        $this->mailer->sendEmailConfirmationMessage($user);
+    }
+
+    public function handleRegisterConfirm(UserEvent $event)
+    {
+        $user = $event->getUser();
+        $user->setConfirmationToken(null);
+        $user->setRoles([User::ROLE_USER_CONFIRMED]);
     }
 }

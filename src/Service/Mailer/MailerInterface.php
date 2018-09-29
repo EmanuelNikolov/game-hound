@@ -8,7 +8,7 @@ use App\Entity\User;
 interface MailerInterface
 {
 
-    public function sendConfirmationEmail(User $user);
+    public function sendEmailConfirmationMessage(User $user);
 
-    public function sendPasswordResetEmail(User $user);
+    public function sendPasswordResetMessage(User $user);
 }

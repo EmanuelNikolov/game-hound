@@ -14,14 +14,15 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class UserRepository extends ServiceEntityRepository
 {
+
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, User::class);
     }
 
-//    /**
-//     * @return User[] Returns an array of User objects
-//     */
+    //    /**
+    //     * @return User[] Returns an array of User objects
+    //     */
     /*
     public function findByExampleField($value)
     {
@@ -36,15 +37,16 @@ class UserRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?User
-    {
+    public function findOneByEmailOrUsername(
+      string $loginCredential
+    ): ?User {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+          ->where('u.email = :email')
+          ->orWhere('u.username = :username')
+          ->setParameter('email', $loginCredential)
+          ->setParameter('username', $loginCredential)
+          ->getQuery()
+          ->getOneOrNullResult();
     }
-    */
+
 }

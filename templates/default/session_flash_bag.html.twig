@@ -1,0 +1,11 @@
+{% for label, messages in app.flashes(['success', 'danger']) %}
+    {% for message in messages %}
+        <span class="alert alert-{{ label }} d-block"><span class="d-block">
+                    <span class="form-error-icon badge badge-{{ label }} text-uppercase">{{ label }}</span>
+                <span class="form-error-message">
+                    {{ message }}
+                </span>
+                </span>
+        </span>
+    {% endfor %}
+{% endfor %}

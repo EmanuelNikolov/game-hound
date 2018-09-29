@@ -6,10 +6,16 @@ namespace App\Event;
 use App\Entity\User;
 use Symfony\Component\EventDispatcher\Event;
 
-class UserRegisteredEvent extends Event
+class UserEvent extends Event
 {
 
-    public const NAME = 'user.registered';
+    public const REGISTER_REQUEST = 'user.register.request';
+
+    public const REGISTER_CONFIRM = 'user.register.confirm';
+
+    public const RESET_PASSWORD_REQUEST = 'user.reset_password.request';
+    
+    public const RESET_PASSWORD_CONFIRM = 'user.reset_password.confirm';
 
     /**
      * @var User
@@ -17,7 +23,7 @@ class UserRegisteredEvent extends Event
     private $user;
 
     /**
-     * UserRegisteredEvent constructor.
+     * RegistrationSuccessEvent constructor.
      *
      * @param User $user
      */
@@ -37,7 +43,7 @@ class UserRegisteredEvent extends Event
     /**
      * @param User $user
      *
-     * @return UserRegisteredEvent
+     * @return UserEvent
      */
     public function setUser(User $user): self
     {

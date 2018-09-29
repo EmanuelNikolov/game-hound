@@ -54,7 +54,7 @@ class Mailer implements MailerInterface
     }
 
 
-    public function sendConfirmationEmail(User $user)
+    public function sendEmailConfirmationMessage(User $user)
     {
         $templateName = $this->parameters['confirmation'];
         $confirmationURL = $this->router->generate('user_email_confirm', [
@@ -63,7 +63,7 @@ class Mailer implements MailerInterface
 
         $templateData = [
           'user' => $user,
-          'confirmationURL' => $confirmationURL,
+          'confirmation_url' => $confirmationURL,
         ];
 
         $this->sendEmail(
@@ -74,9 +74,24 @@ class Mailer implements MailerInterface
         );
     }
 
-    public function sendPasswordResetEmail(User $user)
+    public function sendPasswordResetMessage(User $user)
     {
-        // TODO: Implement sendPasswordResetEmail() method.
+        $templateName = $this->parameters['reset_password'];
+        $resetPasswordURL = $this->router->generate('user_reset_password', [
+          'token' => $user->getConfirmationToken(),
+        ]);
+
+        $templateData = [
+          'user' => $user,
+          'reset_password_url' => $resetPasswordURL,
+        ];
+
+        $this->sendEmail(
+          $this->parameters['from_email'],
+          $user->getEmail(),
+          $templateName,
+          $templateData
+        );
     }
 
     private function sendEmail(

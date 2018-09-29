@@ -3,11 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Event\UserRegisteredEvent;
+use App\Event\UserEvent;
+use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
+use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -16,32 +19,41 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 class UserController extends AbstractController
 {
 
-    private const REGISTER_SUCCESS_MESSAGE = "Yay! Your account was created, a verification link was sent to your email (つ ♡ ͜ʖ ♡)つ";
+    private const REGISTRATION_CONFIRMED = "Yay! Your account was created, a verification link was sent to your email (つ ♡ ͜ʖ ♡)つ";
 
-    private const EMAIL_CONFIRM_INVALID_TOKEN = "Invalid token ¯\_( ͡° ͜ʖ ͡°)_/¯";
+    private const INVALID_TOKEN = "Invalid token ¯\_( ͡° ͜ʖ ͡°)_/¯";
 
     private const EMAIL_CONFIRM_USER_DIFF = "You must be logged into your account to confirm your email ( ͡ಠ ʖ̯ ͡ಠ)";
 
-    private const EMAIL_CONFIRM_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound ( ͡°з ͡°)";
+    private const REGISTRATION_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound ( ͡°з ͡°)";
 
-    private const EMAIL_CONFIRM_ALREADY_DONE = "You have already verified your email ¯\_(⊙_ʖ⊙)_/¯";
+    private const RESET_PASSWORD_SUCCESS = "You have successfully changed your password. Welcome back! ( ͡°з ͡°)";
+
+    private const RESET_PASSWORD_REQUEST_FAIL = "Sorry, we couldn't find a user account with those credentials ┐( ͡° ʖ̯ ͡°)┌";
+
+    private const RESET_PASSWORD_REQUEST_SUCCESS = "Wooho! A password reset link was sent to your email! ヽ༼ຈل͜ຈ༽ﾉ";
 
     private $guardAuthenticatorHandler;
 
     private $userLoginAuthenticator;
+
+    private $eventDispatcher;
 
     /**
      * UserController constructor.
      *
      * @param GuardAuthenticatorHandler $guardAuthenticatorHandler
      * @param UserLoginAuthenticator $userLoginAuthenticator
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
       GuardAuthenticatorHandler $guardAuthenticatorHandler,
-      UserLoginAuthenticator $userLoginAuthenticator
+      UserLoginAuthenticator $userLoginAuthenticator,
+      EventDispatcherInterface $eventDispatcher
     ) {
         $this->guardAuthenticatorHandler = $guardAuthenticatorHandler;
         $this->userLoginAuthenticator = $userLoginAuthenticator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -49,14 +61,12 @@ class UserController extends AbstractController
      *
      * @param Request $request
      * @param UserPasswordEncoderInterface $userPasswordEncoder
-     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function register(
       Request $request,
-      UserPasswordEncoderInterface $userPasswordEncoder,
-      EventDispatcherInterface $eventDispatcher
+      UserPasswordEncoderInterface $userPasswordEncoder
     ) {
         $user = new User();
         $form = $this->createForm(UserRegisterType::class, $user);
@@ -67,13 +77,14 @@ class UserController extends AbstractController
               $user->getPlainPassword());
             $user->setPassword($encodedPassword);
 
-            $event = new UserRegisteredEvent($user);
-            $eventDispatcher->dispatch(UserRegisteredEvent::NAME, $event);
+            $event = new UserEvent($user);
+            $this->eventDispatcher->dispatch(UserEvent::REGISTER_REQUEST,
+              $event);
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
-            $this->addFlash('success', self::REGISTER_SUCCESS_MESSAGE);
+            $this->addFlash('success', self::REGISTRATION_CONFIRMED);
 
             return $this->guardAuthenticatorHandler
               ->authenticateUserAndHandleSuccess(
@@ -91,7 +102,7 @@ class UserController extends AbstractController
 
     /**
      * @Route(
-     *     "/account/confirm/{token}",
+     *     "/register/confirm/{token}",
      *     name="user_email_confirm",
      *     methods={"GET"}
      * )
@@ -101,7 +112,7 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function emailConfirm(
+    public function registerConfirm(
       string $token,
       Request $request
     ) {
@@ -111,27 +122,24 @@ class UserController extends AbstractController
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
-        // TODO: put that logic in a separate service
         if (!$user) {
-            if (!in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
-                $this->addFlash('notice', self::EMAIL_CONFIRM_ALREADY_DONE);
-            }
-            $this->addFlash('danger', self::EMAIL_CONFIRM_INVALID_TOKEN);
+            $this->addFlash('danger', self::INVALID_TOKEN);
 
-            return $this->redirectToRoute('security_login');
+            return $this->redirectToRoute('home');
         }
 
         if (!$user->isEqualTo($this->getUser())) {
             $this->addFlash('danger', self::EMAIL_CONFIRM_USER_DIFF);
 
-            return $this->redirectToRoute('security_login');
+            return $this->redirectToRoute('home');
         }
 
-        $user->setConfirmationToken(null);
-        $user->setRoles([User::ROLE_USER_CONFIRMED]);
+        $event = new UserEvent($user);
+        $this->eventDispatcher->dispatch(UserEvent::REGISTER_CONFIRM, $event);
+
         $em->flush();
 
-        $this->addFlash('success', self::EMAIL_CONFIRM_SUCCESS);
+        $this->addFlash('success', self::REGISTRATION_SUCCESS);
 
         return $this->guardAuthenticatorHandler
           ->authenticateUserAndHandleSuccess(
@@ -140,6 +148,107 @@ class UserController extends AbstractController
             $this->userLoginAuthenticator,
             'main'
           );
+    }
+
+    /**
+     * @Route(
+     *     "/reset_password",
+     *     name="user_reset_password",
+     *     methods={"GET","POST"}
+     * )
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function resetPassword(Request $request)
+    {
+        $form = $this->createForm(UserResetPasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository(User::class)
+              ->findOneByEmailOrUsername($formData['login_credential']);
+
+            if (!$user) {
+                $form->addError(new FormError(self::RESET_PASSWORD_REQUEST_FAIL));
+            } else {
+                $event = new UserEvent($user);
+                $this->eventDispatcher
+                  ->dispatch(UserEvent::RESET_PASSWORD_REQUEST, $event);
+
+                $em->flush();
+
+                $this->addFlash('success',
+                  self::RESET_PASSWORD_REQUEST_SUCCESS);
+
+            }
+        }
+
+        return $this->render('user/reset_password.html.twig', [
+          'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route(
+     *     "/reset_password/confirm/{token}",
+     *     name="reset_password_confirm",
+     *     methods={"GET", "POST"}
+     * )
+     *
+     * @param string $token
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function resetPasswordConfirm(
+      string $token,
+      Request $request,
+      UserPasswordEncoderInterface $encoder
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var \App\Entity\User $user */
+        $user = $em->getRepository(User::class)
+          ->findOneByConfirmationToken($token);
+
+        if (!$token || !$user instanceof User) {
+            $this->addFlash('danger', self::INVALID_TOKEN);
+
+            return $this->redirectToRoute('user_reset_password');
+        }
+
+        $event = new UserEvent($user);
+        $this->eventDispatcher
+          ->dispatch(UserEvent::RESET_PASSWORD_CONFIRM, $event);
+
+        $form = $this->createForm(UserNewPasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('password')->getData();
+            $password = $encoder->encodePassword($user, $plainPassword);
+            $user->setPassword($password);
+            $em->flush();
+            $this->addFlash('success', self::RESET_PASSWORD_SUCCESS);
+
+            return $this->guardAuthenticatorHandler
+              ->authenticateUserAndHandleSuccess(
+                $user,
+                $request,
+                $this->userLoginAuthenticator,
+                'main'
+              );
+        }
+
+        return $this->render('user/new_password.html.twig', [
+          'form' => $form->createView(),
+        ]);
     }
 
     /**
