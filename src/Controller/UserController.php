@@ -33,6 +33,8 @@ class UserController extends AbstractController
 
     private const RESET_PASSWORD_REQUEST_SUCCESS = "Wooho! A password reset link was sent to your email! ヽ༼ຈل͜ຈ༽ﾉ";
 
+    const RESET_PASSWORD_FAIL = "You have to verify your email before you can reset your password! ( ͡ಠ ʖ̯ ͡ಠ)";
+
     private $guardAuthenticatorHandler;
 
     private $userLoginAuthenticator;
@@ -122,7 +124,7 @@ class UserController extends AbstractController
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
-        if (!$user) {
+        if (!$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', self::INVALID_TOKEN);
 
             return $this->redirectToRoute('home');
@@ -217,8 +219,14 @@ class UserController extends AbstractController
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
-        if (!$token || !$user instanceof User) {
+        if (!$token || !$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', self::INVALID_TOKEN);
+
+            return $this->redirectToRoute('user_reset_password');
+        }
+
+        if (in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
+            $this->addFlash('danger', self::RESET_PASSWORD_FAIL);
 
             return $this->redirectToRoute('user_reset_password');
         }
@@ -235,6 +243,7 @@ class UserController extends AbstractController
             $password = $encoder->encodePassword($user, $plainPassword);
             $user->setPassword($password);
             $em->flush();
+
             $this->addFlash('success', self::RESET_PASSWORD_SUCCESS);
 
             return $this->guardAuthenticatorHandler

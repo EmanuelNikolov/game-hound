@@ -50,8 +50,9 @@ class User implements UserInterface, EquatableInterface
      * @Assert\Length(
      *      min = 5,
      *      max = 25,
-     *      minMessage = "Username must be at least {{ limit }} characters long",
-     *      maxMessage = "Username cannot be longer than {{ limit }} characters"
+     *      minMessage = "Username must be at least {{ limit }} characters
+     *   long", maxMessage = "Username cannot be longer than {{ limit }}
+     *   characters"
      * )
      */
     private $username;
@@ -66,8 +67,9 @@ class User implements UserInterface, EquatableInterface
      * @Assert\Length(
      *      min = 8,
      *      max = 50,
-     *      minMessage = "Password must be at least {{ limit }} characters long",
-     *      maxMessage = "Password cannot be longer than {{ limit }} characters"
+     *      minMessage = "Password must be at least {{ limit }} characters
+     *   long", maxMessage = "Password cannot be longer than {{ limit }}
+     *   characters"
      * )
      */
     private $plainPassword;
@@ -78,6 +80,13 @@ class User implements UserInterface, EquatableInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $confirmationToken;
+
+    /**
+     * @var null|string
+     *
+     * @ORM\Column(type="datetimetz_immutable", nullable=true)
+     */
+    private $confirmationTokenRequestedAt;
 
     /**
      * @var bool
@@ -173,7 +182,42 @@ class User implements UserInterface, EquatableInterface
     public function setConfirmationToken(?string $confirmationToken
     ): User {
         $this->confirmationToken = $confirmationToken;
+
+        if (null === $confirmationToken) {
+            $this->confirmationTokenRequestedAt = null;
+        } else {
+            $this->confirmationTokenRequestedAt = new \DateTimeImmutable();
+        }
+
         return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getConfirmationTokenRequestedAt(): ?string
+    {
+        return $this->confirmationTokenRequestedAt;
+    }
+
+    /**
+     * @param null|string $confirmationTokenRequestedAt
+     *
+     * @return User
+     */
+    public function setConfirmationTokenRequestedAt(
+      ?string $confirmationTokenRequestedAt
+    ): User {
+        $this->confirmationTokenRequestedAt = $confirmationTokenRequestedAt;
+        return $this;
+    }
+
+    public function isConfirmationTokenNonExpired(): bool
+    {
+        $dto = $this->confirmationTokenRequestedAt;
+
+        return $dto instanceof \DateTimeImmutable &&
+          $dto > new \DateTimeImmutable('now');
     }
 
     /**
