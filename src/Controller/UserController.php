@@ -8,6 +8,7 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
+use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -264,9 +265,14 @@ class UserController extends AbstractController
      * @Route("/{username}", name="user_profile", methods={"GET"})
      *
      * @param \App\Entity\User $user
+     *
+     * @param \GuzzleHttp\Client $client
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function profile(User $user)
+    public function profile(User $user, Client $client)
     {
-        die('sex');
+        dd($client);
+        return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

@@ -38,3 +38,5 @@ services:
     App\Service\Mailer\Mailer:
         arguments:
           - '%mailer.user.templates%'
+
+    GuzzleHttp\Client: ~
