@@ -8,7 +8,7 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
-use GuzzleHttp\Client;
+use App\Service\IGDBWrapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -266,13 +266,14 @@ class UserController extends AbstractController
      *
      * @param \App\Entity\User $user
      *
-     * @param \GuzzleHttp\Client $client
+     * @param \App\Service\IGDBWrapper $igdb
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
-    public function profile(User $user, Client $client)
+    public function profile(User $user, IGDBWrapper $igdb)
     {
-        dd($client);
+        $igdb->getFranchises(1);
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

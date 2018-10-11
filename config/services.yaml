@@ -12,6 +12,7 @@ parameters:
       reset_password: 'email/reset_password.html.twig'
       from_email: 'tester@abv.bg'
 
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -39,4 +40,10 @@ services:
         arguments:
           - '%mailer.user.templates%'
 
+    App\Service\IGDBWrapper:
+        arguments:
+            - 'cc98a4d34c307d2ad83afcba4d9c2b53'
+            - 'https://api-endpoint.igdb.com'
+
     GuzzleHttp\Client: ~
+    GuzzleHttp\ClientInterface: '@GuzzleHttp\Client'
