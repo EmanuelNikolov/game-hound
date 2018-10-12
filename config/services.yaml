@@ -47,3 +47,4 @@ services:
 
     GuzzleHttp\Client: ~
     GuzzleHttp\ClientInterface: '@GuzzleHttp\Client'
+    Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter: ~

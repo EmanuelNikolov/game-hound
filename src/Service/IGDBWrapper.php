@@ -3,8 +3,6 @@
 namespace App\Service;
 
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
 
 class IGDBWrapper
 {
@@ -28,31 +26,41 @@ class IGDBWrapper
      * @var array
      */
     const VALID_RESOURCES = [
-      'games' => 'games',
-      'characters' => 'characters',
-      'companies' => 'companies',
-      'game_engines' => 'game_engines',
-      'game_modes' => 'game_modes',
-      'keywords' => 'keywords',
-      'people' => 'people',
-      'platforms' => 'platforms',
-      'pulses' => 'pulses',
-      'themes' => 'themes',
-      'collections' => 'collections',
-      'player_perspectives' => 'player_perspectives',
-      'reviews' => 'reviews',
-      'franchises' => 'franchises',
-      'genres' => 'genres',
-      'release_dates' => 'release_dates',
+      'Achievements' => 'achievements',
+      'Characters' => 'characters',
+      'Collections' => 'collections',
+      'Companies' => 'companies',
+      'Credits' => 'credits',
+      'ExternalReviews' => 'external_reviews',
+      'ExternalReviewSources' => 'external_review_sources',
+      'Feeds' => 'feeds',
+      'Franchises' => 'franchises',
+      'Games' => 'games',
+      'GameEngines' => 'game_engines',
+      'GameModes' => 'game_modes',
+      'Genres' => 'genres',
+      'Keywords' => 'keywords',
+      'Pages' => 'pages',
+      'People' => 'people',
+      'Platforms' => 'platforms',
+      'PlayTimes' => 'play_times',
+      'PlayerPerspectives' => 'player_perspectives',
+      'Pulses' => 'pulses',
+      'PulseGroups' => 'pulse_groups',
+      'PulseSources' => 'pulse_sources',
+      'ReleaseDates' => 'release_dates',
+      'Reviews' => 'reviews',
+      'Themes' => 'themes',
+      'Titles' => 'titles',
+      'Me' => 'me',
+      'GameVersions' => 'game_versions',
     ];
 
     /**
      * IGDB constructor.
      *
      * @param string $key
-     *
      * @param string $url
-     *
      * @param ClientInterface $client
      *
      * @throws \Exception
@@ -75,39 +83,69 @@ class IGDBWrapper
         $this->httpClient = $client;
     }
 
-    /**
-     * Get character information
-     *
-     * @param integer $characterId
-     * @param array $fields
-     *
-     * @return \StdClass
-     * @throws \Exception
-     */
-    public function getCharacter($characterId, $fields = ['*']): \StdClass
-    {
-        return $this->getSingle($characterId, $fields);
-    }
-
-    protected function getSingle(int $id, array $fields): \StdClass
-    {
+    protected function getSingle(
+      int $id,
+      array $fields,
+      array $options
+    ): \StdClass {
         $endpointName = $this->getDirectParentCallFunctionName();
         $apiUrl = $this->getEndpoint($endpointName);
+
         $apiUrl .= $id;
 
         $params = [
           'fields' => implode(',', $fields),
         ];
 
-        $apiData = $this->apiGet($apiUrl, $params);
+        $apiData = $this->apiGet($apiUrl, $params + $options);
 
-        return $this->decodeSingle($apiData);
+        return $this->decode($apiData)->current();
+    }
+
+    protected function getMultiple(
+      string $search,
+      array $fields,
+      array $options
+    ): \Generator {
+        $endpointName = $this->getDirectParentCallFunctionName();
+        $apiUrl = $this->getEndpoint($endpointName);
+
+        $params = [
+          'fields' => implode(',', $fields),
+          'search' => $search,
+        ];
+
+        $apiData = $this->apiGet($apiUrl, $params + $options);
+
+        return $this->decode($apiData);
     }
 
     protected function getDirectParentCallFunctionName(): string
     {
         $name = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)[2]['function'];
-        return lcfirst(substr($name, 3));
+
+        for ($offset = 0; !ctype_upper($name[$offset]); ++$offset) {
+        }
+
+        return substr($name, $offset);
+    }
+
+    /**
+     * Get character information
+     *
+     * @param integer $characterId
+     * @param array $fields
+     *
+     * @param array $options
+     *
+     * @return \StdClass
+     */
+    public function getCharacters(
+      int $characterId,
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \StdClass {
+        return $this->getSingle($characterId, $fields, $options);
     }
 
     /**
@@ -115,43 +153,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchCharacters(
       string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
-    }
-
-    protected function getMultiple(
-      array $fields,
-      int $limit,
-      int $offset,
-      string $search = null,
-      string $order = null
-    ): \StdClass {
-        $endpointName = $this->getDirectParentCallFunctionName();
-        $apiUrl = $this->getEndpoint($endpointName);
-
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-        ];
-
-        !$search ? $params['search'] = $search : null;
-        !$order ? $params['order'] = $order : null;
-
-        $apiData = $this->apiGet($apiUrl, $params);
-
-        return $this->decodeMultiple($apiData);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -160,11 +171,16 @@ class IGDBWrapper
      * @param integer $companyId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
      */
-    public function getCompanies($companyId, $fields = ['*']): \StdClass
-    {
-        return $this->getSingle($companyId, $fields);
+    public function getCompanies(
+      int $companyId,
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \StdClass  {
+        return $this->getSingle($companyId, $fields, $options);
     }
 
     /**
@@ -172,19 +188,17 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @param array $options
+     *
+     * @return array
      */
     public function searchCompanies(
       string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -193,14 +207,16 @@ class IGDBWrapper
      * @param integer $franchiseId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getFranchises(
       int $franchiseId,
-      array $fields = ['*']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($franchiseId, $fields);
+        return $this->getSingle($franchiseId, $fields, $options);
     }
 
     /**
@@ -208,19 +224,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchFranchises(
       string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0
-    ) {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -229,14 +242,16 @@ class IGDBWrapper
      * @param integer $gameModeId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getGameModes(
       int $gameModeId,
-      array $fields = ['name', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($gameModeId, $fields);
+        return $this->getSingle($gameModeId, $fields, $options);
     }
 
     /**
@@ -244,19 +259,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return \Generator
      */
     public function searchGameModes(
       string $search,
       array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ) {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -265,12 +277,16 @@ class IGDBWrapper
      * @param integer $gameId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
-    public function getGames(int $gameId, array $fields = ['*']): \StdClass
-    {
-        return $this->getSingle($gameId, $fields);
+    public function getGames(
+      int $gameId,
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \StdClass {
+        return $this->getSingle($gameId, $fields, $options);
     }
 
     /**
@@ -278,21 +294,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
-     * @param string $order
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchGames(
       string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0,
-      string $order = null
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search, $order);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -301,14 +312,16 @@ class IGDBWrapper
      * @param integer $genreId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getGenres(
       int $genreId,
-      array $fields = ['name', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($genreId, $fields);
+        return $this->getSingle($genreId, $fields, $options);
     }
 
     /**
@@ -316,19 +329,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchGenres(
       string $search,
-      array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -337,14 +347,16 @@ class IGDBWrapper
      * @param integer $keywordId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getKeywords(
       int $keywordId,
-      array $fields = ['name', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($keywordId, $fields);
+        return $this->getSingle($keywordId, $fields, $options);
     }
 
     /**
@@ -352,19 +364,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchKeywords(
       string $search,
-      array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -373,12 +382,16 @@ class IGDBWrapper
      * @param integer $personId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
-    public function getPeople(int $personId, array $fields = ['*']): \StdClass
-    {
-        return $this->getSingle($personId, $fields);
+    public function getPeople(
+      int $personId,
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \StdClass {
+        return $this->getSingle($personId, $fields, $options);
     }
 
     /**
@@ -386,19 +399,17 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @param array $options
+     *
+     * @return array
      */
     public function searchPeople(
       string $search,
-      array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -407,14 +418,16 @@ class IGDBWrapper
      * @param integer $platformId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getPlatforms(
       int $platformId,
-      array $fields = ['name', 'logo', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($platformId, $fields);
+        return $this->getSingle($platformId, $fields, $options);
     }
 
     /**
@@ -422,19 +435,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchPlatforms(
       string $search,
-      array $fields = ['name', 'logo', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -443,15 +453,16 @@ class IGDBWrapper
      * @param integer $perspectiveId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getPlayerPerspectives(
       int $perspectiveId,
-      array $fields = ['name', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        // TODO: fix endpoint naming
-        return $this->getSingle($perspectiveId, $fields);
+        return $this->getSingle($perspectiveId, $fields, $options);
     }
 
     /**
@@ -459,19 +470,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchPlayerPerspectives(
       string $search,
-      array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -480,30 +488,33 @@ class IGDBWrapper
      * @param integer $pulseId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
-    public function getPulses(int $pulseId, array $fields = ['*']): \StdClass
-    {
-        return $this->getSingle($pulseId, $fields);
+    public function getPulses(
+      int $pulseId,
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \StdClass {
+        return $this->getSingle($pulseId, $fields, $options);
     }
 
     /**
      * Search pulses by title
      *
+     * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
-    public function fetchPulses(
+    public function searchPulses(
+      string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -512,14 +523,16 @@ class IGDBWrapper
      * @param integer $collectionId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getCollections(
       int $collectionId,
-      array $fields = ['*']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($collectionId, $fields);
+        return $this->getSingle($collectionId, $fields, $options);
     }
 
     /**
@@ -527,19 +540,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return array
      */
     public function searchCollections(
       string $search,
       array $fields = ['*'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
 
     /**
@@ -548,14 +558,16 @@ class IGDBWrapper
      * @param integer $themeId
      * @param array $fields
      *
+     * @param array $options
+     *
      * @return \StdClass
-     * @throws \Exception
      */
     public function getThemes(
       int $themeId,
-      array $fields = ['name', 'slug', 'url']
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
     ): \StdClass {
-        return $this->getSingle($themeId, $fields);
+        return $this->getSingle($themeId, $fields, $options);
     }
 
     /**
@@ -563,19 +575,16 @@ class IGDBWrapper
      *
      * @param string $search
      * @param array $fields
-     * @param integer $limit
-     * @param integer $offset
+     * @param array $options
      *
-     * @return \StdClass
-     * @throws \Exception
+     * @return \Generator
      */
     public function searchThemes(
       string $search,
-      array $fields = ['name', 'slug', 'url'],
-      int $limit = 10,
-      int $offset = 0
-    ): \StdClass {
-        return $this->getMultiple($fields, $limit, $offset, $search);
+      array $fields = ['*'],
+      array $options = ['limit' => 10, 'offset' => 0]
+    ): \Generator {
+        return $this->getMultiple($search, $fields, $options);
     }
     /*
      *  Internally used Methods, set visibility to public to enable more flexibility
@@ -585,35 +594,10 @@ class IGDBWrapper
      *
      * @return mixed
      */
-    private function getEndpoint(string $name)
+    private function getEndpoint(string $name): string
     {
         return rtrim($this->baseUrl,
             '/') . '/' . self::VALID_RESOURCES[$name] . '/';
-    }
-
-    /**
-     * Decode the response from IGDB, extract the single resource object.
-     * (Don't use this to decode the response containing list of objects)
-     *
-     * @param  string $apiData the api response from IGDB
-     *
-     * @throws \Exception
-     * @return bool|\StdClass
-     */
-    private function decodeSingle(string &$apiData): \StdClass
-    {
-        $resObj = json_decode($apiData);
-
-        if (!is_array($resObj) || count($resObj) == 0) {
-            throw new \Exception("Empty JSON Object returned");
-        }
-
-        if (isset($resObj->status)) {
-            $msg = "Error " . $resObj->status . " " . $resObj->message;
-            throw new \Exception($msg);
-        }
-        dd($resObj[0]);
-        return $resObj[0];
     }
 
     /**
@@ -621,54 +605,43 @@ class IGDBWrapper
      *
      * @param  string $apiData the api response from IGDB
      *
+     * @return \Generator|\StdClass
      * @throws \Exception
-     * @return \StdClass
      */
-    private function decodeMultiple(string &$apiData): \StdClass
+    private function decode(string &$apiData): \Generator
     {
-        $resObj = json_decode($apiData);
+        $respData = json_decode($apiData);
 
-        if (isset($resObj->status)) {
-            $msg = "Error " . $resObj->status . " " . $resObj->message;
-            throw new \Exception($msg);
-        } else {
-            //$itemsArray = $resObj->items;
-            if (!is_array($resObj)) {
-                throw new \Exception("Empty JSON Object returned");
-            } else {
-                return $resObj;
-            }
+        if (!is_array($respData) || empty($respData)) {
+            throw new \Exception("Empty JSON Object returned");
         }
+
+        foreach ($respData as $obj) {
+            yield $obj;
+        };
     }
 
     /**
      * Using CURL to issue a GET request
      *
-     * @param $url
-     * @param $params
+     * @param string $url
+     * @param array $params
      *
      * @return mixed
-     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function apiGet(string $url, $params)
+    private function apiGet(string $url, array $params): string
     {
-        $url = $url . (strpos($url,
-            '?') === false ? '?' : '') . http_build_query($params);
-        try {
-            $response = $this->httpClient->request('GET', $url, [
-              'headers' => [
-                'user-key' => $this->igdbKey,
-                'Accept' => 'application/json',
-              ],
-            ]);
-        } catch (RequestException $exception) {
-            if ($response = $exception->getResponse()) {
-                throw new \Exception($exception);
-            }
-            throw new \Exception($exception);
-        } catch (GuzzleException $exception) {
-            throw new \Exception($exception);
-        }
+        $url .= (!strpos($url, '?') ? '?' : '') . http_build_query($params);
+
+        $response = $this->httpClient->request('GET', $url, [
+          'headers' => [
+            'user-key' => $this->igdbKey,
+            'Accept' => 'application/json',
+          ],
+        ]);
+        dd(json_decode($response->getBody()->getContents()));
+
         return $response->getBody();
     }
 }

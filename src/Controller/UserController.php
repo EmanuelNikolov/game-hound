@@ -273,7 +273,7 @@ class UserController extends AbstractController
      */
     public function profile(User $user, IGDBWrapper $igdb)
     {
-        $igdb->getFranchises(1);
+        dd($igdb->getCompanies(1));
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }
