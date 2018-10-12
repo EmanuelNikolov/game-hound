@@ -94,16 +94,19 @@ class IGDBWrapper
         $endpointName = $this->getDirectParentCallFunctionName();
         $apiUrl = $this->getEndpoint($endpointName);
         $apiUrl .= $id;
+
         $params = [
           'fields' => implode(',', $fields),
         ];
+
         $apiData = $this->apiGet($apiUrl, $params);
+
         return $this->decodeSingle($apiData);
     }
 
     protected function getDirectParentCallFunctionName(): string
     {
-        $name = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 3)[2]['function'];
+        $name = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)[2]['function'];
         return lcfirst(substr($name, 3));
     }
 
@@ -119,19 +122,35 @@ class IGDBWrapper
      * @throws \Exception
      */
     public function searchCharacters(
-      $search,
-      $fields = ['*'],
-      $limit = 10,
-      $offset = 0
-    ) {
-        $apiUrl = $this->getEndpoint('characters');
+      string $search,
+      array $fields = ['*'],
+      int $limit = 10,
+      int $offset = 0
+    ): \StdClass {
+        return $this->getMultiple($fields, $limit, $offset, $search);
+    }
+
+    protected function getMultiple(
+      array $fields,
+      int $limit,
+      int $offset,
+      string $search = null,
+      string $order = null
+    ): \StdClass {
+        $endpointName = $this->getDirectParentCallFunctionName();
+        $apiUrl = $this->getEndpoint($endpointName);
+
         $params = [
           'fields' => implode(',', $fields),
           'limit' => $limit,
           'offset' => $offset,
-          'search' => $search,
         ];
+
+        !$search ? $params['search'] = $search : null;
+        !$order ? $params['order'] = $order : null;
+
         $apiData = $this->apiGet($apiUrl, $params);
+
         return $this->decodeMultiple($apiData);
     }
 
@@ -160,20 +179,12 @@ class IGDBWrapper
      * @throws \Exception
      */
     public function searchCompanies(
-      $search,
-      $fields = ['*'],
-      $limit = 10,
-      $offset = 0
-    ) {
-        $apiUrl = $this->getEndpoint('companies');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+      string $search,
+      array $fields = ['*'],
+      int $limit = 10,
+      int $offset = 0
+    ): \StdClass {
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -185,8 +196,10 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getFranchises(int $franchiseId, array $fields = ['*']): \StdClass
-    {
+    public function getFranchises(
+      int $franchiseId,
+      array $fields = ['*']
+    ): \StdClass {
         return $this->getSingle($franchiseId, $fields);
     }
 
@@ -207,15 +220,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ) {
-        $apiUrl = $this->getEndpoint('franchises');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -227,15 +232,11 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getGameMode($gameModeId, $fields = ['name', 'slug', 'url'])
-    {
-        $apiUrl = $this->getEndpoint('game_modes');
-        $apiUrl .= $gameModeId;
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeSingle($apiData);
+    public function getGameModes(
+      int $gameModeId,
+      array $fields = ['name', 'slug', 'url']
+    ): \StdClass {
+        return $this->getSingle($gameModeId, $fields);
     }
 
     /**
@@ -250,20 +251,12 @@ class IGDBWrapper
      * @throws \Exception
      */
     public function searchGameModes(
-      $search,
-      $fields = ['name', 'slug', 'url'],
-      $limit = 10,
-      $offset = 0
+      string $search,
+      array $fields = ['name', 'slug', 'url'],
+      int $limit = 10,
+      int $offset = 0
     ) {
-        $apiUrl = $this->getEndpoint('game_modes');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -275,15 +268,9 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getGame($gameId, $fields = ['*'])
+    public function getGames(int $gameId, array $fields = ['*']): \StdClass
     {
-        $apiUrl = $this->getEndpoint('games');
-        $apiUrl .= $gameId;
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeSingle($apiData);
+        return $this->getSingle($gameId, $fields);
     }
 
     /**
@@ -299,22 +286,13 @@ class IGDBWrapper
      * @throws \Exception
      */
     public function searchGames(
-      $search,
-      $fields = ['*'],
-      $limit = 10,
-      $offset = 0,
-      $order = null
-    ) {
-        $apiUrl = $this->getEndpoint('games');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'order' => $order,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+      string $search,
+      array $fields = ['*'],
+      int $limit = 10,
+      int $offset = 0,
+      string $order = null
+    ): \StdClass {
+        return $this->getMultiple($fields, $limit, $offset, $search, $order);
     }
 
     /**
@@ -326,15 +304,11 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getGenre($genreId, $fields = ['name', 'slug', 'url'])
-    {
-        $apiUrl = $this->getEndpoint('genres');
-        $apiUrl .= $genreId;
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeSingle($apiData);
+    public function getGenres(
+      int $genreId,
+      array $fields = ['name', 'slug', 'url']
+    ): \StdClass {
+        return $this->getSingle($genreId, $fields);
     }
 
     /**
@@ -354,15 +328,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('genres');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -374,15 +340,11 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getKeyword($keywordId, $fields = ['name', 'slug', 'url'])
-    {
-        $apiUrl = $this->getEndpoint('keywords');
-        $apiUrl .= $keywordId;
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeSingle($apiData);
+    public function getKeywords(
+      int $keywordId,
+      array $fields = ['name', 'slug', 'url']
+    ): \StdClass {
+        return $this->getSingle($keywordId, $fields);
     }
 
     /**
@@ -397,20 +359,12 @@ class IGDBWrapper
      * @throws \Exception
      */
     public function searchKeywords(
-      $search,
-      $fields = ['name', 'slug', 'url'],
-      $limit = 10,
-      $offset = 0
-    ) {
-        $apiUrl = $this->getEndpoint('keywords');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+      string $search,
+      array $fields = ['name', 'slug', 'url'],
+      int $limit = 10,
+      int $offset = 0
+    ): \StdClass {
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -422,15 +376,9 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getPerson(int $personId, array $fields = ['*']): \StdClass
+    public function getPeople(int $personId, array $fields = ['*']): \StdClass
     {
-        $apiUrl = $this->getEndpoint('people');
-        $apiUrl .= $personId;
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeSingle($apiData);
+        return $this->getSingle($personId, $fields);
     }
 
     /**
@@ -450,15 +398,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('people');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -494,15 +434,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('platforms');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -514,7 +446,7 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getPlayerPerspective(
+    public function getPlayerPerspectives(
       int $perspectiveId,
       array $fields = ['name', 'slug', 'url']
     ): \StdClass {
@@ -539,15 +471,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('player_perspectives');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -579,14 +503,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('pulses');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset);
     }
 
     /**
@@ -598,8 +515,10 @@ class IGDBWrapper
      * @return \StdClass
      * @throws \Exception
      */
-    public function getCollection(int $collectionId, array $fields = ['*']): \StdClass
-    {
+    public function getCollections(
+      int $collectionId,
+      array $fields = ['*']
+    ): \StdClass {
         return $this->getSingle($collectionId, $fields);
     }
 
@@ -620,15 +539,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('collections');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-        $apiData = $this->apiGet($apiUrl, $params);
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
 
     /**
@@ -664,17 +575,7 @@ class IGDBWrapper
       int $limit = 10,
       int $offset = 0
     ): \StdClass {
-        $apiUrl = $this->getEndpoint('themes');
-        $params = [
-          'fields' => implode(',', $fields),
-          'limit' => $limit,
-          'offset' => $offset,
-          'search' => $search,
-        ];
-
-        $apiData = $this->apiGet($apiUrl, $params);
-
-        return $this->decodeMultiple($apiData);
+        return $this->getMultiple($fields, $limit, $offset, $search);
     }
     /*
      *  Internally used Methods, set visibility to public to enable more flexibility
