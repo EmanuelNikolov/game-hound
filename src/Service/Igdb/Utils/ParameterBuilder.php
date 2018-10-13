@@ -246,7 +246,11 @@ class ParameterBuilder
             }
         }
 
+        $ids = $propsArr['ids'];
+        unset($propsArr['ids']);
+        empty($propsArr['fields']) ? $propsArr['fields'] = '*' : null;
+
         // using urldecode because http_build_query encodes commas :|
-        return urldecode(http_build_query($propsArr));
+        return $ids . '?' . urldecode(http_build_query($propsArr));
     }
 }

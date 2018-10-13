@@ -95,7 +95,7 @@ class IGDBWrapper
       ParameterBuilder $paramBuilder
     ): array {
         $url = $this->getEndpoint($endpoint);
-        $completeUrl = $url . '?' . $paramBuilder->buildQueryString();
+        $completeUrl = $url . $paramBuilder->buildQueryString();
 
         $response = $this->httpClient->request('GET', $completeUrl,
           [
@@ -143,7 +143,7 @@ class IGDBWrapper
     public function getCharacters(ParameterBuilder $paramBuilder): array
     {
         // todo: endpoint again :D
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -156,7 +156,7 @@ class IGDBWrapper
      */
     public function getCompanies(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -169,7 +169,7 @@ class IGDBWrapper
      */
     public function getFranchises(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -182,7 +182,7 @@ class IGDBWrapper
      */
     public function getGameModes(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -195,7 +195,7 @@ class IGDBWrapper
      */
     public function getGames(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -208,7 +208,7 @@ class IGDBWrapper
      */
     public function getGenres(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -221,7 +221,7 @@ class IGDBWrapper
      */
     public function getKeywords(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -234,7 +234,7 @@ class IGDBWrapper
      */
     public function getPeople(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -247,7 +247,7 @@ class IGDBWrapper
      */
     public function getPlatforms(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -260,7 +260,7 @@ class IGDBWrapper
      */
     public function getPlayerPerspectives(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -273,7 +273,7 @@ class IGDBWrapper
      */
     public function getPulses(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -286,7 +286,7 @@ class IGDBWrapper
      */
     public function getCollections(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
@@ -299,7 +299,7 @@ class IGDBWrapper
      */
     public function getThemes(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = '';
+        $endpoint = substr(__FUNCTION__, 3);
         return $this->getResponseBody($endpoint, $paramBuilder);
     }
 }

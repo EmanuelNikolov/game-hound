@@ -266,16 +266,14 @@ class UserController extends AbstractController
      * @Route("/{username}", name="user_profile", methods={"GET"})
      *
      * @param \App\Entity\User $user
-     *
      * @param \App\Service\Igdb\IGDBWrapper $igdb
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $builder
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function profile(User $user, IGDBWrapper $igdb, ParameterBuilder $builder)
     {
-        dd($builder->buildQueryString('a', 'b'));
-        $igdb->getCompanies(3);
-        dd($igdb->getResponse());
+        dd($igdb->getCompanies($builder->setIds('1')->setIds('2')));
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }
