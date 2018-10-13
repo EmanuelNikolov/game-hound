@@ -2,6 +2,7 @@
 
 namespace App\Service\Igdb;
 
+use App\Service\Igdb\Utils\ParameterBuilder;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -91,66 +92,40 @@ class IGDBWrapper
 
     protected function getResponseBody(
       string $endpoint,
-      array $options
+      ParameterBuilder $paramBuilder
     ): array {
-        $apiUrl = $this->buildQuery();
+        $url = $this->getEndpoint($endpoint);
+        $completeUrl = $url . '?' . $paramBuilder->buildQueryString();
 
-        $apiUrl .= $id;
+        $response = $this->httpClient->request('GET', $completeUrl,
+          [
+            'headers' => [
+              'user-key' => $this->igdbKey,
+              'Accept' => 'application/json',
+            ],
+          ]);
 
-        $params = [
-          'fields' => implode(',', $fields),
-        ];
-
-        $response = $this->callApi($apiUrl, $params + $options);
         $this->response = $response;
 
         return json_decode($response->getBody());
     }
 
-    protected function search(
+    public function search(
       string $search,
-      array $options
+      string $endpoint,
+      ParameterBuilder $paramBuilder
     ): array {
-        $apiUrl = $this->buildQuery();
+        $paramBuilder->setSearch($search);
 
-        $params = [
-          'fields' => implode(',', $fields),
-          'search' => $search,
-        ];
-
-        $response = $this->callApi($apiUrl, $params + $options);
-        $this->response = $response;
-
-        return json_decode($response->getBody());
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
-    public function buildQuery(string $endpoint): string
+    public function getEndpoint(string $endpoint): string
     {
-        return rtrim($this->baseUrl,
-            '/') . '/' . self::VALID_RESOURCES[$endpoint] . '/';
-    }
-
-    /**
-     * Using CURL to issue a GET request
-     *
-     * @param string $url
-     * @param array $params
-     *
-     * @return ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function callApi(string $url, array $params): ResponseInterface
-    {
-        $url .= '?' . http_build_query($params);
-
-        $response = $this->httpClient->request('GET', $url, [
-          'headers' => [
-            'user-key' => $this->igdbKey,
-            'Accept' => 'application/json',
-          ],
-        ]);
-
-        return $response;
+        return rtrim($this->baseUrl, '/')
+          . '/'
+          . self::VALID_RESOURCES[$endpoint]
+          . '/';
     }
 
     public function getResponse(): ?ResponseInterface
@@ -161,233 +136,170 @@ class IGDBWrapper
     /**
      * Get character information
      *
-     * @param integer $characterId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getCharacters(
-      int $characterId,
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): self {
-        return $this->getResponseBody($characterId, $fields, $options);
+    public function getCharacters(ParameterBuilder $paramBuilder): array
+    {
+        // todo: endpoint again :D
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get company information by ID
      *
-     * @param integer $companyId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getCompanies(
-      int $companyId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): array {
-        return $this->getResponseBody($companyId, $fields, $options);
+    public function getCompanies(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get franchise information
      *
-     * @param integer $franchiseId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getFranchises(
-      int $franchiseId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($franchiseId, $fields, $options);
+    public function getFranchises(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get game mode information by ID
      *
-     * @param integer $gameModeId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getGameModes(
-      int $gameModeId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($gameModeId, $fields, $options);
+    public function getGameModes(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get game information by ID
      *
-     * @param integer $gameId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getGames(
-      int $gameId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($gameId, $fields, $options);
+    public function getGames(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get genre information by ID
      *
-     * @param integer $genreId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getGenres(
-      int $genreId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($genreId, $fields, $options);
+    public function getGenres(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get keyword information by ID
      *
-     * @param integer $keywordId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getKeywords(
-      int $keywordId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($keywordId, $fields, $options);
+    public function getKeywords(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get people information by ID
      *
-     * @param integer $personId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getPeople(
-      int $personId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($personId, $fields, $options);
+    public function getPeople(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get platform information by ID
      *
-     * @param integer $platformId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getPlatforms(
-      int $platformId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($platformId, $fields, $options);
+    public function getPlatforms(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get player perspective information by ID
      *
-     * @param integer $perspectiveId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getPlayerPerspectives(
-      int $perspectiveId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($perspectiveId, $fields, $options);
+    public function getPlayerPerspectives(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get pulse information by ID
      *
-     * @param integer $pulseId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getPulses(
-      int $pulseId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($pulseId, $fields, $options);
+    public function getPulses(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get collection information by ID
      *
-     * @param integer $collectionId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getCollections(
-      int $collectionId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($collectionId, $fields, $options);
+    public function getCollections(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 
     /**
      * Get themes information by ID
      *
-     * @param integer $themeId
-     * @param array $fields
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
-     * @param array $options
-     *
-     * @return \StdClass
+     * @return array
      */
-    public function getThemes(
-      int $themeId,
-
-      array $options = ['limit' => 10, 'offset' => 0]
-    ): \StdClass {
-        return $this->getResponseBody($themeId, $fields, $options);
+    public function getThemes(ParameterBuilder $paramBuilder): array
+    {
+        $endpoint = '';
+        return $this->getResponseBody($endpoint, $paramBuilder);
     }
 }

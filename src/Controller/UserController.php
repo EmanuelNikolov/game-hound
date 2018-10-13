@@ -9,7 +9,7 @@ use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
 use App\Service\Igdb\IGDBWrapper;
-use App\Service\Igdb\Utils\UrlBuilder;
+use App\Service\Igdb\Utils\ParameterBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -271,9 +271,9 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function profile(User $user, IGDBWrapper $igdb, UrlBuilder $builder)
+    public function profile(User $user, IGDBWrapper $igdb, ParameterBuilder $builder)
     {
-        dd($builder->buildUrl('a', 'b'));
+        dd($builder->buildQueryString('a', 'b'));
         $igdb->getCompanies(3);
         dd($igdb->getResponse());
         return $this->render('user/profile.html.twig', ['user' => $user]);

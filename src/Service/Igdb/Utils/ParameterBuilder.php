@@ -3,9 +3,7 @@
 namespace App\Service\Igdb\Utils;
 
 
-use App\Service\Igdb\IGDBWrapper;
-
-class UrlBuilder
+class ParameterBuilder
 {
 
     /**
@@ -69,9 +67,9 @@ class UrlBuilder
     /**
      * @param string $filters
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setFilters(string $filters): UrlBuilder
+    public function setFilters(string $filters): ParameterBuilder
     {
         $this->filters[] = $filters;
         return $this;
@@ -88,9 +86,9 @@ class UrlBuilder
     /**
      * @param string $offset
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setOffset(string $offset): UrlBuilder
+    public function setOffset(string $offset): ParameterBuilder
     {
         $this->offset = $offset;
         return $this;
@@ -107,9 +105,9 @@ class UrlBuilder
     /**
      * @param string $ids
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setIds(string $ids): UrlBuilder
+    public function setIds(string $ids): ParameterBuilder
     {
         $this->ids[] = $ids;
         return $this;
@@ -126,9 +124,9 @@ class UrlBuilder
     /**
      * @param string $fields
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setFields(string $fields): UrlBuilder
+    public function setFields(string $fields): ParameterBuilder
     {
         $this->fields[] = $fields;
         return $this;
@@ -145,9 +143,9 @@ class UrlBuilder
     /**
      * @param string $expand
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setExpand(string $expand): UrlBuilder
+    public function setExpand(string $expand): ParameterBuilder
     {
         $this->expand[] = $expand;
         return $this;
@@ -164,9 +162,9 @@ class UrlBuilder
     /**
      * @param string $limit
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setLimit(string $limit): UrlBuilder
+    public function setLimit(string $limit): ParameterBuilder
     {
         $this->limit = $limit;
         return $this;
@@ -183,9 +181,9 @@ class UrlBuilder
     /**
      * @param string $order
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setOrder(string $order): UrlBuilder
+    public function setOrder(string $order): ParameterBuilder
     {
         $this->order = $order;
         return $this;
@@ -202,9 +200,9 @@ class UrlBuilder
     /**
      * @param string $search
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setSearch(string $search): UrlBuilder
+    public function setSearch(string $search): ParameterBuilder
     {
         $this->search = $search;
         return $this;
@@ -221,9 +219,9 @@ class UrlBuilder
     /**
      * @param string $scroll
      *
-     * @return UrlBuilder
+     * @return ParameterBuilder
      */
-    public function setScroll(string $scroll): UrlBuilder
+    public function setScroll(string $scroll): ParameterBuilder
     {
         $this->scroll = $scroll;
         return $this;
@@ -237,22 +235,18 @@ class UrlBuilder
         return $this->query;
     }
 
-    public function buildUrl(string $baseUrl, string $endpoint)
+    public function buildQueryString(): string
     {
-        $endpointComplete = rtrim($baseUrl, '/')
-          . '/'
-          . IGDBWrapper::VALID_RESOURCES['Games']
-          . '/';
-
         $propsArr = get_object_vars($this);
 
-        foreach ($propsArr as $key => $props) {
+        foreach ($propsArr as $key => $prop) {
             // faster than is_array smh
-            if ((array)$props === $props) {
-                $propsArr[$key] = implode(",", $props);
+            if ((array)$prop === $prop) {
+                $propsArr[$key] = implode(",", $prop);
             }
         }
 
-        return $endpointComplete . '?' . urldecode(http_build_query($propsArr));
+        // using urldecode because http_build_query encodes commas :|
+        return urldecode(http_build_query($propsArr));
     }
 }
