@@ -8,7 +8,8 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
-use App\Service\IGDBWrapper;
+use App\Service\Igdb\IGDBWrapper;
+use App\Service\Igdb\Utils\UrlBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -215,7 +216,7 @@ class UserController extends AbstractController
       UserPasswordEncoderInterface $encoder
     ) {
         $em = $this->getDoctrine()->getManager();
-
+        $request->
         /** @var \App\Entity\User $user */
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
@@ -266,14 +267,15 @@ class UserController extends AbstractController
      *
      * @param \App\Entity\User $user
      *
-     * @param \App\Service\IGDBWrapper $igdb
+     * @param \App\Service\Igdb\IGDBWrapper $igdb
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
      */
-    public function profile(User $user, IGDBWrapper $igdb)
+    public function profile(User $user, IGDBWrapper $igdb, UrlBuilder $builder)
     {
-        dd($igdb->getCompanies(1));
+        dd($builder->buildUrl('a', 'b'));
+        $igdb->getCompanies(3);
+        dd($igdb->getResponse());
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

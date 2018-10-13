@@ -40,11 +40,11 @@ services:
         arguments:
           - '%mailer.user.templates%'
 
-    App\Service\IGDBWrapper:
+    App\Service\Igdb\IGDBWrapper:
         arguments:
             - 'cc98a4d34c307d2ad83afcba4d9c2b53'
             - 'https://api-endpoint.igdb.com'
 
     GuzzleHttp\Client: ~
+
     GuzzleHttp\ClientInterface: '@GuzzleHttp\Client'
-    Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter: ~
