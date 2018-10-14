@@ -2,8 +2,10 @@
 
 namespace App\Service\Igdb;
 
+use App\Service\Igdb\Exception\ScrollHeaderNotFoundException;
 use App\Service\Igdb\Utils\ParameterBuilder;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
 class IGDBWrapper
@@ -15,7 +17,7 @@ class IGDBWrapper
     protected $igdbKey;
 
     /**
-     * @var \GuzzleHttp\Client
+     * @var \GuzzleHttp\ClientInterface
      */
     protected $httpClient;
 
@@ -31,36 +33,37 @@ class IGDBWrapper
 
     /**
      * @var array
+     * TODO: make enum array?
      */
-    const VALID_RESOURCES = [
-      'Achievements' => 'achievements',
-      'Characters' => 'characters',
-      'Collections' => 'collections',
-      'Companies' => 'companies',
-      'Credits' => 'credits',
-      'ExternalReviews' => 'external_reviews',
-      'ExternalReviewSources' => 'external_review_sources',
-      'Feeds' => 'feeds',
-      'Franchises' => 'franchises',
-      'Games' => 'games',
-      'GameEngines' => 'game_engines',
-      'GameModes' => 'game_modes',
-      'Genres' => 'genres',
-      'Keywords' => 'keywords',
-      'Pages' => 'pages',
-      'People' => 'people',
-      'Platforms' => 'platforms',
-      'PlayTimes' => 'play_times',
-      'PlayerPerspectives' => 'player_perspectives',
-      'Pulses' => 'pulses',
-      'PulseGroups' => 'pulse_groups',
-      'PulseSources' => 'pulse_sources',
-      'ReleaseDates' => 'release_dates',
-      'Reviews' => 'reviews',
-      'Themes' => 'themes',
-      'Titles' => 'titles',
-      'Me' => 'me',
-      'GameVersions' => 'game_versions',
+    public const VALID_ENDPOINTS = [
+      'achievements' => 'achievements',
+      'characters' => 'characters',
+      'collections' => 'collections',
+      'companies' => 'companies',
+      'credits' => 'credits',
+      'externalReviews' => 'external_reviews',
+      'externalReviewSources' => 'external_review_sources',
+      'feeds' => 'feeds',
+      'franchises' => 'franchises',
+      'games' => 'games',
+      'gameEngines' => 'game_engines',
+      'gameModes' => 'game_modes',
+      'genres' => 'genres',
+      'keywords' => 'keywords',
+      'pages' => 'pages',
+      'people' => 'people',
+      'platforms' => 'platforms',
+      'playTimes' => 'play_times',
+      'playerPerspectives' => 'player_perspectives',
+      'pulses' => 'pulses',
+      'pulseGroups' => 'pulse_groups',
+      'pulseSources' => 'pulse_sources',
+      'releaseDates' => 'release_dates',
+      'reviews' => 'reviews',
+      'themes' => 'themes',
+      'titles' => 'titles',
+      'me' => 'me',
+      'gameVersions' => 'game_versions',
     ];
 
     /**
@@ -86,28 +89,19 @@ class IGDBWrapper
         }
 
         $this->igdbKey = $key;
-        $this->baseUrl = $baseUrl;
+        $this->baseUrl = rtrim($baseUrl, '/');
         $this->httpClient = $client;
     }
 
-    protected function getResponseBody(
+    public function callApi(
       string $endpoint,
       ParameterBuilder $paramBuilder
     ): array {
-        $url = $this->getEndpoint($endpoint);
-        $completeUrl = $url . $paramBuilder->buildQueryString();
+        $url = $this->getEndpoint($endpoint) . $paramBuilder->buildQueryString();
 
-        $response = $this->httpClient->request('GET', $completeUrl,
-          [
-            'headers' => [
-              'user-key' => $this->igdbKey,
-              'Accept' => 'application/json',
-            ],
-          ]);
+        $response = $this->sendRequest($url);
 
-        $this->response = $response;
-
-        return json_decode($response->getBody());
+        return $this->processResponse($response);
     }
 
     public function search(
@@ -117,15 +111,83 @@ class IGDBWrapper
     ): array {
         $paramBuilder->setSearch($search);
 
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi($endpoint, $paramBuilder);
+    }
+
+    public function scroll(ResponseInterface $response = null): array
+    {
+        if (null === $response) {
+            $response = $this->response;
+        }
+
+        $endpoint = $this->getScrollHeader($response, 'X-Next-Page');
+
+        $url = $this->baseUrl . $endpoint;
+
+        $scrollResponse = $this->sendRequest($url);
+
+        return $this->processResponse($scrollResponse);
+    }
+
+    public function getScrollResultCount(ResponseInterface $response = null): int
+    {
+        if (null === $response) {
+            $response = $this->response;
+        }
+
+        return $this->getScrollHeader($response, 'X-Count');
+    }
+
+    public function sendRequest(string $url): ResponseInterface
+    {
+        try {
+            $response = $this->httpClient->request('GET', $url, [
+              'headers' => [
+                'user-key' => $this->igdbKey,
+                'Accept' => 'application/json',
+              ],
+            ]);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+        }
+
+        $this->response = $response;
+
+        return $response;
+    }
+
+    public function processResponse(ResponseInterface $response): array
+    {
+        $contents = $response->getBody()->getContents();
+        $decodedJson = json_decode($contents, true);
+
+        if (null === $decodedJson) {
+            // When API returns a string, return type doesn't change (returns array with the string inside)
+            $decodedJson = [$contents];
+        }
+
+        return $decodedJson;
     }
 
     public function getEndpoint(string $endpoint): string
     {
-        return rtrim($this->baseUrl, '/')
+        return $this->baseUrl
           . '/'
-          . self::VALID_RESOURCES[$endpoint]
+          . self::VALID_ENDPOINTS[$endpoint]
           . '/';
+    }
+
+    public function getScrollHeader(
+      ResponseInterface $response,
+      string $header
+    ): string {
+        $headerData = $response->getHeader($header);
+
+        if (empty($headerData)) {
+            throw new ScrollHeaderNotFoundException("Scroll Header doesn't exist.");
+        }
+
+        return $headerData[0];
     }
 
     public function getResponse(): ?ResponseInterface
@@ -140,11 +202,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getCharacters(ParameterBuilder $paramBuilder): array
+    public function characters(ParameterBuilder $paramBuilder): array
     {
-        // todo: endpoint again :D
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -154,10 +214,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getCompanies(ParameterBuilder $paramBuilder): array
+    public function companies(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -167,10 +226,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getFranchises(ParameterBuilder $paramBuilder): array
+    public function franchises(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -180,10 +238,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getGameModes(ParameterBuilder $paramBuilder): array
+    public function gameModes(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -193,10 +250,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getGames(ParameterBuilder $paramBuilder): array
+    public function games(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -206,10 +262,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getGenres(ParameterBuilder $paramBuilder): array
+    public function genres(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -219,10 +274,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getKeywords(ParameterBuilder $paramBuilder): array
+    public function keywords(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -232,10 +286,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getPeople(ParameterBuilder $paramBuilder): array
+    public function people(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -245,10 +298,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getPlatforms(ParameterBuilder $paramBuilder): array
+    public function platforms(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -258,10 +310,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getPlayerPerspectives(ParameterBuilder $paramBuilder): array
+    public function playerPerspectives(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -271,10 +322,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getPulses(ParameterBuilder $paramBuilder): array
+    public function pulses(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -284,10 +334,9 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getCollections(ParameterBuilder $paramBuilder): array
+    public function collections(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 
     /**
@@ -297,9 +346,8 @@ class IGDBWrapper
      *
      * @return array
      */
-    public function getThemes(ParameterBuilder $paramBuilder): array
+    public function themes(ParameterBuilder $paramBuilder): array
     {
-        $endpoint = substr(__FUNCTION__, 3);
-        return $this->getResponseBody($endpoint, $paramBuilder);
+        return $this->callApi(__FUNCTION__, $paramBuilder);
     }
 }

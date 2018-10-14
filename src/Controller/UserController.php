@@ -216,8 +216,7 @@ class UserController extends AbstractController
       UserPasswordEncoderInterface $encoder
     ) {
         $em = $this->getDoctrine()->getManager();
-        $request->
-        /** @var \App\Entity\User $user */
+        $request->/** @var \App\Entity\User $user */
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
@@ -271,9 +270,15 @@ class UserController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function profile(User $user, IGDBWrapper $igdb, ParameterBuilder $builder)
-    {
-        dd($igdb->getCompanies($builder->setIds('1')->setIds('2')));
+    public function profile(
+      User $user,
+      IGDBWrapper $igdb,
+      ParameterBuilder $builder
+    ) {
+        $igdb->games($builder->setScroll('1'));
+
+        dd($igdb->getScrollResultCount());
+
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

@@ -57,14 +57,6 @@ class ParameterBuilder
     private $query;
 
     /**
-     * @return string
-     */
-    public function getFilters(): string
-    {
-        return $this->filters;
-    }
-
-    /**
      * @param string $filters
      *
      * @return ParameterBuilder
@@ -73,14 +65,6 @@ class ParameterBuilder
     {
         $this->filters[] = $filters;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOffset(): string
-    {
-        return $this->offset;
     }
 
     /**
@@ -95,14 +79,6 @@ class ParameterBuilder
     }
 
     /**
-     * @return string
-     */
-    public function getIds(): string
-    {
-        return $this->ids;
-    }
-
-    /**
      * @param string $ids
      *
      * @return ParameterBuilder
@@ -111,14 +87,6 @@ class ParameterBuilder
     {
         $this->ids[] = $ids;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFields(): string
-    {
-        return $this->fields;
     }
 
     /**
@@ -133,14 +101,6 @@ class ParameterBuilder
     }
 
     /**
-     * @return string
-     */
-    public function getExpand(): string
-    {
-        return $this->expand;
-    }
-
-    /**
      * @param string $expand
      *
      * @return ParameterBuilder
@@ -149,14 +109,6 @@ class ParameterBuilder
     {
         $this->expand[] = $expand;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLimit(): string
-    {
-        return $this->limit;
     }
 
     /**
@@ -171,14 +123,6 @@ class ParameterBuilder
     }
 
     /**
-     * @return string
-     */
-    public function getOrder(): string
-    {
-        return $this->order;
-    }
-
-    /**
      * @param string $order
      *
      * @return ParameterBuilder
@@ -187,14 +131,6 @@ class ParameterBuilder
     {
         $this->order = $order;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSearch(): string
-    {
-        return $this->search;
     }
 
     /**
@@ -209,14 +145,6 @@ class ParameterBuilder
     }
 
     /**
-     * @return string
-     */
-    public function getScroll(): string
-    {
-        return $this->scroll;
-    }
-
-    /**
      * @param string $scroll
      *
      * @return ParameterBuilder
@@ -225,14 +153,6 @@ class ParameterBuilder
     {
         $this->scroll = $scroll;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getQuery(): string
-    {
-        return $this->query;
     }
 
     public function buildQueryString(): string
