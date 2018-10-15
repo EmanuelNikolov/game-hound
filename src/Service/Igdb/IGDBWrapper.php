@@ -4,12 +4,18 @@ namespace App\Service\Igdb;
 
 use App\Service\Igdb\Exception\ScrollHeaderNotFoundException;
 use App\Service\Igdb\Utils\ParameterBuilder;
+use App\Service\Igdb\ValidEndpoints as Endpoint;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
 class IGDBWrapper
 {
+
+    /**
+     * @var string
+     */
+    protected $baseUrl;
 
     /**
      * @var string
@@ -22,49 +28,9 @@ class IGDBWrapper
     protected $httpClient;
 
     /**
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
      * @var ResponseInterface
      */
     protected $response;
-
-    /**
-     * @var array
-     * TODO: make enum array?
-     */
-    public const VALID_ENDPOINTS = [
-      'achievements' => 'achievements',
-      'characters' => 'characters',
-      'collections' => 'collections',
-      'companies' => 'companies',
-      'credits' => 'credits',
-      'externalReviews' => 'external_reviews',
-      'externalReviewSources' => 'external_review_sources',
-      'feeds' => 'feeds',
-      'franchises' => 'franchises',
-      'games' => 'games',
-      'gameEngines' => 'game_engines',
-      'gameModes' => 'game_modes',
-      'genres' => 'genres',
-      'keywords' => 'keywords',
-      'pages' => 'pages',
-      'people' => 'people',
-      'platforms' => 'platforms',
-      'playTimes' => 'play_times',
-      'playerPerspectives' => 'player_perspectives',
-      'pulses' => 'pulses',
-      'pulseGroups' => 'pulse_groups',
-      'pulseSources' => 'pulse_sources',
-      'releaseDates' => 'release_dates',
-      'reviews' => 'reviews',
-      'themes' => 'themes',
-      'titles' => 'titles',
-      'me' => 'me',
-      'gameVersions' => 'game_versions',
-    ];
 
     /**
      * IGDB constructor.
@@ -129,7 +95,7 @@ class IGDBWrapper
         return $this->processResponse($scrollResponse);
     }
 
-    public function getScrollResultCount(ResponseInterface $response = null): int
+    public function getScrollCount(ResponseInterface $response = null): int
     {
         if (null === $response) {
             $response = $this->response;
@@ -171,10 +137,7 @@ class IGDBWrapper
 
     public function getEndpoint(string $endpoint): string
     {
-        return $this->baseUrl
-          . '/'
-          . self::VALID_ENDPOINTS[$endpoint]
-          . '/';
+        return $this->baseUrl . '/' . $endpoint . '/';
     }
 
     public function getScrollHeader(
@@ -184,7 +147,7 @@ class IGDBWrapper
         $headerData = $response->getHeader($header);
 
         if (empty($headerData)) {
-            throw new ScrollHeaderNotFoundException("Scroll Header doesn't exist.");
+            throw new ScrollHeaderNotFoundException($header . " Header doesn't exist.");
         }
 
         return $headerData[0];
@@ -204,7 +167,7 @@ class IGDBWrapper
      */
     public function characters(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::CHARACTERS, $paramBuilder);
     }
 
     /**
@@ -216,7 +179,7 @@ class IGDBWrapper
      */
     public function companies(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::COMPANIES, $paramBuilder);
     }
 
     /**
@@ -228,7 +191,7 @@ class IGDBWrapper
      */
     public function franchises(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::FRANCHISES, $paramBuilder);
     }
 
     /**
@@ -240,7 +203,7 @@ class IGDBWrapper
      */
     public function gameModes(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::GAME_MODES, $paramBuilder);
     }
 
     /**
@@ -252,7 +215,7 @@ class IGDBWrapper
      */
     public function games(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::GAMES, $paramBuilder);
     }
 
     /**
@@ -264,7 +227,7 @@ class IGDBWrapper
      */
     public function genres(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::GENRES, $paramBuilder);
     }
 
     /**
@@ -276,7 +239,7 @@ class IGDBWrapper
      */
     public function keywords(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::KEYWORDS, $paramBuilder);
     }
 
     /**
@@ -288,7 +251,7 @@ class IGDBWrapper
      */
     public function people(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::PEOPLE, $paramBuilder);
     }
 
     /**
@@ -300,7 +263,7 @@ class IGDBWrapper
      */
     public function platforms(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::PLATFORMS, $paramBuilder);
     }
 
     /**
@@ -312,7 +275,7 @@ class IGDBWrapper
      */
     public function playerPerspectives(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::PLAYER_PERSPECTIVES, $paramBuilder);
     }
 
     /**
@@ -324,7 +287,7 @@ class IGDBWrapper
      */
     public function pulses(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::PULSES, $paramBuilder);
     }
 
     /**
@@ -336,7 +299,7 @@ class IGDBWrapper
      */
     public function collections(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::COLLECTIONS, $paramBuilder);
     }
 
     /**
@@ -348,6 +311,6 @@ class IGDBWrapper
      */
     public function themes(ParameterBuilder $paramBuilder): array
     {
-        return $this->callApi(__FUNCTION__, $paramBuilder);
+        return $this->callApi(Endpoint::THEMES, $paramBuilder);
     }
 }

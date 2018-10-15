@@ -216,7 +216,7 @@ class UserController extends AbstractController
       UserPasswordEncoderInterface $encoder
     ) {
         $em = $this->getDoctrine()->getManager();
-        $request->/** @var \App\Entity\User $user */
+        /** @var \App\Entity\User $user */
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
@@ -277,7 +277,7 @@ class UserController extends AbstractController
     ) {
         $igdb->games($builder->setScroll('1'));
 
-        dd($igdb->getScrollResultCount());
+        dd($igdb->getScrollCount());
 
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
