@@ -3,7 +3,9 @@
 namespace App\Service\Igdb;
 
 use App\Service\Igdb\Exception\ScrollHeaderNotFoundException;
+use App\Service\Igdb\Utils\AbstractParameterCollection;
 use App\Service\Igdb\Utils\ParameterBuilder;
+use App\Service\Igdb\Utils\ParameterCollectionFactory;
 use App\Service\Igdb\ValidEndpoints as Endpoint;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -13,9 +15,9 @@ use Psr\Http\Message\ResponseInterface;
 class IgdbWrapper implements IgdbWrapperInterface
 {
 
-    const SCROLL_NEXT_PAGE = 'X-Next-Page';
+    public const SCROLL_NEXT_PAGE = 'X-Next-Page';
 
-    const SCROLL_COUNT = 'X-Count';
+    public const SCROLL_COUNT = 'X-Count';
 
     /**
      * @var string
@@ -28,9 +30,9 @@ class IgdbWrapper implements IgdbWrapperInterface
     protected $apiKey;
 
     /**
-     * @var ParameterBuilder
+     * @var ParameterCollectionFactory
      */
-    protected $paramBuilder;
+    protected $parameterCollectionFactory;
 
     /**
      * @var \GuzzleHttp\ClientInterface
@@ -47,6 +49,7 @@ class IgdbWrapper implements IgdbWrapperInterface
      *
      * @param string $key
      * @param string $baseUrl
+     * @param ParameterCollectionFactory $parameterCollectionFactory
      * @param ClientInterface $client
      *
      * @throws \Exception
@@ -54,6 +57,7 @@ class IgdbWrapper implements IgdbWrapperInterface
     public function __construct(
       string $key,
       string $baseUrl,
+      ParameterCollectionFactory $parameterCollectionFactory,
       ClientInterface $client
     ) {
         if (empty($key)) {
@@ -66,7 +70,20 @@ class IgdbWrapper implements IgdbWrapperInterface
 
         $this->apiKey = $key;
         $this->baseUrl = rtrim($baseUrl, '/');
+        $this->parameterCollectionFactory = $parameterCollectionFactory;
         $this->httpClient = $client;
+    }
+
+    /**
+     * Gets the parameter collection.
+     *
+     * @param string $className
+     *
+     * @return AbstractParameterCollection
+     */
+    public function getParameterCollection(string $className): AbstractParameterCollection
+    {
+        return $this->parameterCollectionFactory->createCollection($className);
     }
 
     /**
@@ -110,7 +127,7 @@ class IgdbWrapper implements IgdbWrapperInterface
     }
 
     /**
-     * Calls the IGDB API with the scroll header from a response.
+     * Call the IGDB API with the scroll header from a response.
      *
      * @link https://igdb.github.io/api/references/pagination/#scroll-api
      *
@@ -241,8 +258,21 @@ class IgdbWrapper implements IgdbWrapperInterface
     }
 
     /**
-     * Call the characters endpoint.
+     * Call the achievements endpoint.
+     * @link https://igdb.github.io/api/endpoints/achievement/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
      *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function achievements(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::ACHIEVEMENTS, $paramBuilder);
+    }
+
+    /**
+     * Call the characters endpoint.
+     * @link https://igdb.github.io/api/endpoints/character/
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -254,8 +284,21 @@ class IgdbWrapper implements IgdbWrapperInterface
     }
 
     /**
-     * Call the companies endpoint.
+     * Call the collections endpoint.
+     * @link https://igdb.github.io/api/endpoints/collection/
+     * @param ParameterBuilder $paramBuilder
      *
+     * @return array
+     * @throws GuzzleException
+     */
+    public function collections(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::COLLECTIONS, $paramBuilder);
+    }
+
+    /**
+     * Call the companies endpoint.
+     * @link https://igdb.github.io/api/endpoints/company/
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -266,9 +309,63 @@ class IgdbWrapper implements IgdbWrapperInterface
         return $this->callApi(Endpoint::COMPANIES, $paramBuilder);
     }
 
+
+    /**
+     * Call the credits endpoint.
+     * @link https://igdb.github.io/api/endpoints/credit/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function credits(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::CREDITS, $paramBuilder);
+    }
+
+    /**
+     * Call the external_reviews endpoint.
+     * @link https://igdb.github.io/api/endpoints/external-review/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function external_reviews(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::EXTERNAL_REVIEWS, $paramBuilder);
+    }
+
+    /**
+     * Call the external_review_sources endpoint.
+     * @link https://igdb.github.io/api/endpoints/external-review-source/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function external_review_sources(ParameterBuilder $paramBuilder
+    ): array {
+        return $this->callApi(Endpoint::EXTERNAL_REVIEW_SOURCES, $paramBuilder);
+    }
+
+
+    /**
+     * Call the feeds endpoint.
+     * @link https://igdb.github.io/api/endpoints/feed/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function feeds(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::FEEDS, $paramBuilder);
+    }
+
     /**
      * Call the franchises endpoint.
-     *
+     * @link https://igdb.github.io/api/endpoints/franchise/
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -280,21 +377,8 @@ class IgdbWrapper implements IgdbWrapperInterface
     }
 
     /**
-     * Call the game_modes endpoint.
-     *
-     * @param ParameterBuilder $paramBuilder
-     *
-     * @return array
-     * @throws GuzzleException
-     */
-    public function gameModes(ParameterBuilder $paramBuilder): array
-    {
-        return $this->callApi(Endpoint::GAME_MODES, $paramBuilder);
-    }
-
-    /**
      * Call the games endpoint.
-     *
+     * @link https://igdb.github.io/api/endpoints/game/
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -303,6 +387,19 @@ class IgdbWrapper implements IgdbWrapperInterface
     public function games(ParameterBuilder $paramBuilder): array
     {
         return $this->callApi(Endpoint::GAMES, $paramBuilder);
+    }
+
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws GuzzleException
+     */
+    public function gameModes(ParameterBuilder $paramBuilder): array
+    {
+        return $this->callApi(Endpoint::GAME_MODES, $paramBuilder);
     }
 
     /**
@@ -384,21 +481,8 @@ class IgdbWrapper implements IgdbWrapperInterface
     }
 
     /**
-     * Call the collections endpoint.
-     *
-     * @param ParameterBuilder $paramBuilder
-     *
-     * @return array
-     * @throws GuzzleException
-     */
-    public function collections(ParameterBuilder $paramBuilder): array
-    {
-        return $this->callApi(Endpoint::COLLECTIONS, $paramBuilder);
-    }
-
-    /**
      * Call the themes endpoint.
-     *
+     * @link
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -409,88 +493,159 @@ class IgdbWrapper implements IgdbWrapperInterface
         return $this->callApi(Endpoint::THEMES, $paramBuilder);
     }
 
-    public function achievements(ParameterBuilder $paramBuilder): array
-    {
-        // TODO: Implement achievements() method.
-    }
-
-    public function credits(ParameterBuilder $paramBuilder): array
-    {
-        // TODO: Implement credits() method.
-    }
-
-    public function external_reviews(ParameterBuilder $paramBuilder): array
-    {
-        // TODO: Implement external_reviews() method.
-    }
-
-    public function external_review_sources(ParameterBuilder $paramBuilder
-    ): array {
-        // TODO: Implement external_review_sources() method.
-    }
-
-    public function feeds(ParameterBuilder $paramBuilder): array
-    {
-        // TODO: Implement feeds() method.
-    }
-
+    /**
+     * Call the game_engines endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-engine/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function game_engines(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement game_engines() method.
+        return $this->callApi(Endpoint::GAME_ENGINES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function game_modes(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement game_modes() method.
+        return $this->callApi(Endpoint::GAME_MODES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function pages(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement pages() method.
+        return $this->callApi(Endpoint::PAGES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function play_times(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement play_times() method.
+        return $this->callApi(Endpoint::PLAY_TIMES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function player_perspectives(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement player_perspectives() method.
+        return $this->callApi(Endpoint::PLAYER_PERSPECTIVES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function pulse_groups(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement pulse_groups() method.
+        return $this->callApi(Endpoint::PULSE_GROUPS, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function pulse_sources(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement pulse_sources() method.
+        return $this->callApi(Endpoint::PULSE_SOURCES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function release_dates(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement release_dates() method.
+        return $this->callApi(Endpoint::RELEASE_DATES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function reviews(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement reviews() method.
+        return $this->callApi(Endpoint::REVIEWS, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function titles(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement titles() method.
+        return $this->callApi(Endpoint::TITLES, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function me(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement me() method.
+        return $this->callApi(Endpoint::ME, $paramBuilder);
     }
 
+    /**
+     * Call the game_modes endpoint.
+     * @link https://igdb.github.io/api/endpoints/game-mode/
+     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function game_versions(ParameterBuilder $paramBuilder): array
     {
-        // TODO: Implement game_versions() method.
+        return $this->callApi(Endpoint::GAME_VERSIONS, $paramBuilder);
     }
 }

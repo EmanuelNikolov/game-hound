@@ -3,7 +3,6 @@
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
-# TODO: add parameters for mailing service
 parameters:
     locale: 'en'
 
@@ -40,10 +39,12 @@ services:
         arguments:
           - '%mailer.user.templates%'
 
-    App\Service\Igdb\IGDBWrapper:
+    App\Service\Igdb\IgdbWrapper:
         arguments:
             - 'cc98a4d34c307d2ad83afcba4d9c2b53'
             - 'https://api-endpoint.igdb.com'
+
+    App\Service\Igdb\IgdbWrapperInterface: '@App\Service\Igdb\IgdbWrapper'
 
     GuzzleHttp\Client: ~
 

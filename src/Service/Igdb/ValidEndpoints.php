@@ -6,59 +6,59 @@ namespace App\Service\Igdb;
 abstract class ValidEndpoints
 {
 
-    const ACHIEVEMENTS = 'achievements';
+    public const ACHIEVEMENTS = 'achievements';
 
-    const CHARACTERS = 'characters';
+    public const CHARACTERS = 'characters';
 
-    const COLLECTIONS = 'collections';
+    public const COLLECTIONS = 'collections';
 
-    const COMPANIES = 'companies';
+    public const COMPANIES = 'companies';
 
-    const CREDITS = 'credits';
+    public const CREDITS = 'credits';
 
-    const EXTERNAL_REVIEWS = 'external_reviews';
+    public const EXTERNAL_REVIEWS = 'external_reviews';
 
-    const EXTERNAL_REVIEW_SOURCES = 'external_review_sources';
+    public const EXTERNAL_REVIEW_SOURCES = 'external_review_sources';
 
-    const FEEDS = 'feeds';
+    public const FEEDS = 'feeds';
 
-    const FRANCHISES = 'franchises';
+    public const FRANCHISES = 'franchises';
 
-        const GAMES = 'games';
+    public const GAMES = 'games';
 
-    const GAME_ENGINES = 'game_engines';
+    public const GAME_ENGINES = 'game_engines';
 
-    const GAME_MODES = 'game_modes';
+    public const GAME_MODES = 'game_modes';
 
-    const GENRES = 'genres';
+    public const GENRES = 'genres';
 
-    const KEYWORDS = 'keywords';
+    public const KEYWORDS = 'keywords';
 
-    const PAGES = 'pages';
+    public const PAGES = 'pages';
 
-    const PEOPLE = 'people';
+    public const PEOPLE = 'people';
 
-    const PLATFORMS = 'platforms';
+    public const PLATFORMS = 'platforms';
 
-    const PLAY_TIMES = 'play_times';
+    public const PLAY_TIMES = 'play_times';
 
-    const PLAYER_PERSPECTIVES = 'player_perspectives';
+    public const PLAYER_PERSPECTIVES = 'player_perspectives';
 
-    const PULSES = 'pulses';
+    public const PULSES = 'pulses';
 
-    const PULSE_GROUPS = 'pulse_groups';
+    public const PULSE_GROUPS = 'pulse_groups';
 
-    const PULSE_SOURCES = 'pulse_sources';
+    public const PULSE_SOURCES = 'pulse_sources';
 
-    const RELEASE_DATES = 'release_dates';
+    public const RELEASE_DATES = 'release_dates';
 
-    const REVIEWS = 'reviews';
+    public const REVIEWS = 'reviews';
 
-    const THEMES = 'themes';
+    public const THEMES = 'themes';
 
-    const TITLES = 'titles';
+    public const TITLES = 'titles';
 
-    const ME = 'me';
+    public const ME = 'me';
 
-    const GAME_VERSIONS = 'game_versions';
+    public const GAME_VERSIONS = 'game_versions';
 }

@@ -7,22 +7,22 @@ class ParameterBuilder
 {
 
     /**
-     * @var string
+     * @var array
      */
     private $expand;
 
     /**
-     * @var string
+     * @var array
      */
     private $fields;
 
     /**
-     * @var string
+     * @var array
      */
     private $filters;
 
     /**
-     * @var int
+     * @var array
      */
     private $ids;
 
@@ -112,7 +112,7 @@ class ParameterBuilder
      *
      * @param string $ids
      *
-     * @return \App\Service\Igdb\Utils\ParameterBuilder
+     * @return ParameterBuilder
      */
     public function setIds(string $ids): ParameterBuilder
     {
@@ -207,12 +207,12 @@ class ParameterBuilder
         foreach ($propsArr as $key => $prop) {
             // faster than is_array smh
             if ((array)$prop === $prop) {
-                $propsArr[$key] = implode(",", $prop);
+                $propsArr[$key] = implode(',', $prop);
             }
         }
 
-        $ids = $propsArr['id'] . ',' . $propsArr['ids'];
-        unset($propsArr['id'], $propsArr['ids']);
+        $ids = $propsArr['ids'];
+        unset($propsArr['ids']);
         empty($propsArr['fields']) ? $propsArr['fields'] = '*' : null;
 
         // using urldecode because http_build_query encodes commas :|
