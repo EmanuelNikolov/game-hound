@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Igdb\Exception;
+namespace EN\IgdbApiBundle\Exception;
 
 
 class ScrollHeaderNotFoundException extends \Exception

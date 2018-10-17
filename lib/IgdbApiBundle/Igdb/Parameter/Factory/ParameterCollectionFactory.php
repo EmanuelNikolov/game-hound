@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Service\Igdb\Utils;
+namespace EN\IgdbApiBundle\Igdb\Parameter\Factory;
 
+
+use EN\IgdbApiBundle\Igdb\Parameter\AbstractParameterCollection;
+use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilder;
 
 class ParameterCollectionFactory
 {

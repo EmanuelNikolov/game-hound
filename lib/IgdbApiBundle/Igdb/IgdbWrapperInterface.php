@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service\Igdb;
+namespace EN\IgdbApiBundle\Igdb;
 
 
-use App\Service\Igdb\Exception\ScrollHeaderNotFoundException;
-use App\Service\Igdb\Utils\AbstractParameterCollection;
-use App\Service\Igdb\Utils\ParameterBuilder;
+use EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException;
+use EN\IgdbApiBundle\Igdb\Parameter\AbstractParameterCollection;
+use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilder;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 

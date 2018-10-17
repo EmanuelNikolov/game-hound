@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Igdb\Utils;
+namespace EN\IgdbApiBundle\Igdb\Parameter;
 
 
 abstract class AbstractParameterCollection

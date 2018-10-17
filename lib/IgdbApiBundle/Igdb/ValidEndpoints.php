@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Igdb;
+namespace EN\IgdbApiBundle\Igdb;
 
 
 abstract class ValidEndpoints

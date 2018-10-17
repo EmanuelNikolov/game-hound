@@ -42,6 +42,7 @@
     },
     "autoload": {
         "psr-4": {
+            "EN\\IgdbApiBundle\\": "lib/IgdbApiBundle",
             "App\\": "src/"
         }
     },

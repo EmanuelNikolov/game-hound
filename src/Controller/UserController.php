@@ -8,9 +8,6 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
-use App\Service\Igdb\IgdbWrapperInterface;
-use App\Service\Igdb\Utils\ParameterBuilder;
-use App\Service\Igdb\Utils\test;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -266,23 +263,12 @@ class UserController extends AbstractController
      * @Route("/{username}", name="user_profile", methods={"GET"})
      *
      * @param User $user
-     * @param IgdbWrapperInterface $igdb
-     * @param ParameterBuilder $builder
      *
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \App\Service\Igdb\Exception\ScrollHeaderNotFoundException
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function profile(
-      User $user,
-      IgdbWrapperInterface $igdb,
-      ParameterBuilder $builder
+      User $user
     ) {
-        dd($igdb->getParameterCollection(ParameterBuilder::class));
-        $igdb->games($builder->setScroll('1'));
-
-        dd($igdb->getScrollCount());
-
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

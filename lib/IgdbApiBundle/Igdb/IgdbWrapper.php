@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service\Igdb;
+namespace EN\IgdbApiBundle\Igdb;
 
-use App\Service\Igdb\Exception\ScrollHeaderNotFoundException;
-use App\Service\Igdb\Utils\AbstractParameterCollection;
-use App\Service\Igdb\Utils\ParameterBuilder;
-use App\Service\Igdb\Utils\ParameterCollectionFactory;
-use App\Service\Igdb\ValidEndpoints as Endpoint;
+use EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException;
+use EN\IgdbApiBundle\Igdb\Parameter\AbstractParameterCollection;
+use EN\IgdbApiBundle\Igdb\Parameter\Factory\ParameterCollectionFactory;
+use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilder;
+use EN\IgdbApiBundle\Igdb\ValidEndpoints as Endpoint;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -30,14 +30,14 @@ class IgdbWrapper implements IgdbWrapperInterface
     protected $apiKey;
 
     /**
-     * @var ParameterCollectionFactory
-     */
-    protected $parameterCollectionFactory;
-
-    /**
      * @var \GuzzleHttp\ClientInterface
      */
     protected $httpClient;
+
+    /**
+     * @var ParameterCollectionFactory
+     */
+    protected $parameterCollectionFactory;
 
     /**
      * @var ResponseInterface
@@ -55,10 +55,10 @@ class IgdbWrapper implements IgdbWrapperInterface
      * @throws \Exception
      */
     public function __construct(
-      string $key,
       string $baseUrl,
-      ParameterCollectionFactory $parameterCollectionFactory,
-      ClientInterface $client
+      string $key,
+      ClientInterface $client,
+      ParameterCollectionFactory $parameterCollectionFactory
     ) {
         if (empty($key)) {
             throw new \Exception('IGDB API key is required, please visit https://api.igdb.com/ to request a key');
@@ -81,8 +81,8 @@ class IgdbWrapper implements IgdbWrapperInterface
      *
      * @return AbstractParameterCollection
      */
-    public function getParameterCollection(string $className): AbstractParameterCollection
-    {
+    public function getParameterCollection(string $className
+    ): AbstractParameterCollection {
         return $this->parameterCollectionFactory->createCollection($className);
     }
 
@@ -159,7 +159,7 @@ class IgdbWrapper implements IgdbWrapperInterface
      * @param \Psr\Http\Message\ResponseInterface|null $response
      *
      * @return int
-     * @throws \App\Service\Igdb\Exception\ScrollHeaderNotFoundException
+     * @throws \EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException
      */
     public function getScrollCount(ResponseInterface $response = null): int
     {
@@ -172,6 +172,7 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Sends a HTTP Request.
+     *
      * @param string $url
      *
      * @return \Psr\Http\Message\ResponseInterface
@@ -234,7 +235,7 @@ class IgdbWrapper implements IgdbWrapperInterface
      * @param string $header
      *
      * @return string
-     * @throws \App\Service\Igdb\Exception\ScrollHeaderNotFoundException
+     * @throws \EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException
      */
     public function getScrollHeader(
       ResponseInterface $response,
@@ -259,8 +260,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the achievements endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/achievement/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -272,7 +275,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the characters endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/character/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -285,7 +290,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the collections endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/collection/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -298,7 +305,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the companies endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/company/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -312,8 +321,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the credits endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/credit/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -325,8 +336,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the external_reviews endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/external-review/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -338,8 +351,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the external_review_sources endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/external-review-source/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -352,8 +367,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the feeds endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/feed/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -365,7 +382,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the franchises endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/franchise/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -378,7 +397,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the games endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -391,7 +412,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -482,7 +505,9 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the themes endpoint.
+     *
      * @link
+     *
      * @param ParameterBuilder $paramBuilder
      *
      * @return array
@@ -495,8 +520,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_engines endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-engine/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -508,8 +535,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -521,8 +550,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -534,8 +565,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -547,8 +580,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -560,8 +595,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -573,8 +610,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -586,8 +625,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -599,8 +640,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -612,8 +655,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -625,8 +670,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -638,8 +685,10 @@ class IgdbWrapper implements IgdbWrapperInterface
 
     /**
      * Call the game_modes endpoint.
+     *
      * @link https://igdb.github.io/api/endpoints/game-mode/
-     * @param \App\Service\Igdb\Utils\ParameterBuilder $paramBuilder
+     *
+     * @param ParameterBuilder $paramBuilder
      *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
