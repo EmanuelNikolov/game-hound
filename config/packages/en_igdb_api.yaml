@@ -1,7 +1,3 @@
 en_igdb_api:
   base_url: 'https://api-endpoint.igdb.com'
   api_key: 'cc98a4d34c307d2ad83afcba4d9c2b53'
-
-#  wrapper: ''
-#  parameter_builder: ''
-#  collection_factory: ''
