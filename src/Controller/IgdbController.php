@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
-use EN\IgdbApiBundle\Igdb\ValidEndpoints;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,7 +22,8 @@ class IgdbController extends AbstractController
       IgdbWrapperInterface $wrapper,
       ParameterBuilderInterface $builder
     ) {
-        dd($wrapper->search('Firewatch',
-          ValidEndpoints::GAMES, $builder));
+        dd($wrapper->characters($builder->setId(1)
+          ->setFields('name,id')
+          ->setFields('created_at')));
     }
 }
