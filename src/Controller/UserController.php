@@ -113,6 +113,7 @@ class UserController extends AbstractController
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function registerConfirm(
       string $token,
@@ -159,7 +160,7 @@ class UserController extends AbstractController
      *     methods={"GET","POST"}
      * )
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -202,11 +203,12 @@ class UserController extends AbstractController
      * )
      *
      * @param string $token
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      *
-     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @param UserPasswordEncoderInterface $encoder
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function resetPasswordConfirm(
       string $token,

@@ -78,7 +78,7 @@
         "version": "2.1.5"
     },
     "emanuilnikolov/igdb-api-bundle": {
-        "version": "dev-master"
+        "version": "v1.0.0"
     },
     "facebook/webdriver": {
         "version": "1.6.0"

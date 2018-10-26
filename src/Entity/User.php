@@ -178,8 +178,10 @@ class User implements UserInterface, EquatableInterface
      * @param string $confirmationToken
      *
      * @return User
+     * @throws \Exception
      */
-    public function setConfirmationToken(?string $confirmationToken
+    public function setConfirmationToken(
+      ?string $confirmationToken
     ): User {
         $this->confirmationToken = $confirmationToken;
 
@@ -212,12 +214,16 @@ class User implements UserInterface, EquatableInterface
         return $this;
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function isConfirmationTokenNonExpired(): bool
     {
         $dto = $this->confirmationTokenRequestedAt;
 
-        return $dto instanceof \DateTimeImmutable &&
-          $dto > new \DateTimeImmutable('now');
+        return ($dto instanceof \DateTimeImmutable) &&
+          ($dto > new \DateTimeImmutable('now'));
     }
 
     /**
