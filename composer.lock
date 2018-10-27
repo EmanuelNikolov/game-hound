@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "330bff0bd362239ce09aadcab3976396",
+    "content-hash": "52d51310921f49906107fe8eab34059d",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1229,16 +1229,16 @@
         },
         {
             "name": "emanuilnikolov/igdb-api-bundle",
-            "version": "v1.0.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EmanuilNikolov/IgdbApiBundle.git",
-                "reference": "ff310907354abcc85a585f0aa9c90ef3ef33b6f1"
+                "reference": "9d89687c6e40d4b534c0f80e0c7982743d566d42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EmanuilNikolov/IgdbApiBundle/zipball/ff310907354abcc85a585f0aa9c90ef3ef33b6f1",
-                "reference": "ff310907354abcc85a585f0aa9c90ef3ef33b6f1",
+                "url": "https://api.github.com/repos/EmanuilNikolov/IgdbApiBundle/zipball/9d89687c6e40d4b534c0f80e0c7982743d566d42",
+                "reference": "9d89687c6e40d4b534c0f80e0c7982743d566d42",
                 "shasum": ""
             },
             "require": {
@@ -1269,7 +1269,7 @@
                 }
             ],
             "description": "Symfony Wrapper for IGDB.com API.",
-            "time": "2018-10-25T10:37:18+00:00"
+            "time": "2018-10-27T11:54:49+00:00"
         },
         {
             "name": "fig/link-util",
@@ -2196,16 +2196,16 @@
         },
         {
             "name": "sensio/framework-extra-bundle",
-            "version": "v5.2.1",
+            "version": "v5.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/SensioFrameworkExtraBundle.git",
-                "reference": "535b56b7b0325e87b15b9c57bd3631ae2a0b9f16"
+                "reference": "9ef408febe2f12e70118ef61c6515035a06c5830"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/535b56b7b0325e87b15b9c57bd3631ae2a0b9f16",
-                "reference": "535b56b7b0325e87b15b9c57bd3631ae2a0b9f16",
+                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/9ef408febe2f12e70118ef61c6515035a06c5830",
+                "reference": "9ef408febe2f12e70118ef61c6515035a06c5830",
                 "shasum": ""
             },
             "require": {
@@ -2263,7 +2263,7 @@
                 "annotations",
                 "controllers"
             ],
-            "time": "2018-09-30T05:16:57+00:00"
+            "time": "2018-10-26T14:09:02+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -6197,7 +6197,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "emanuilnikolov/igdb-api-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

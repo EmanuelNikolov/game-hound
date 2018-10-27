@@ -3,161 +3,150 @@
 namespace App\Entity;
 
 
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity()
+ * @ORM\Table(name="games")
+ */
 class Game
 {
 
-    private $id;
-    private $name;
-    private $slug;
-    private $summary;
-    private $publishers;
-    private $category;
-    private $genres;
+    public const COVER_ENDPOINT = 'https://images.igdb.com/igdb/image/upload/';
 
     /**
-     * @return mixed
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
      */
-    public function getId()
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $slug;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $summary;
+
+    /**
+     * @ORM\Column(type="bigint", nullable=true)
+     */
+    private $firstReleaseDate;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $cover;
+
+    /**
+     * @return null|int
+     */
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @param mixed $id
+     * @return string
      */
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * @param mixed $name
+     * @param string $name
      */
-    public function setName($name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getSlug()
+    public function getSlug(): string
     {
         return $this->slug;
     }
 
     /**
-     * @param mixed $slug
+     * @param string $slug
      */
-    public function setSlug($slug): void
+    public function setSlug(string $slug): void
     {
         $this->slug = $slug;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
-    public function getSummary()
+    public function getSummary(): ?string
     {
         return $this->summary;
     }
 
     /**
-     * @param mixed $summary
+     * @param null|string $summary
+     *
+     * @return void
      */
-    public function setSummary($summary): void
+    public function setSummary(?string $summary): void
     {
         $this->summary = $summary;
     }
 
     /**
-     * @return mixed
+     * @return float|null
      */
-    public function getPublishers()
+    public function getFirstReleaseDate(): ?float
     {
-        return $this->publishers;
+        return $this->firstReleaseDate;
     }
 
     /**
-     * @param mixed $publishers
+     * @param null|float $firstReleaseDate
+     *
+     * @return void
      */
-    public function setPublishers($publishers): void
+    public function setFirstReleaseDate(?float $firstReleaseDate): void
     {
-        $this->publishers = $publishers;
+        $this->firstReleaseDate = (int)$firstReleaseDate;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
-    public function getCategory()
-    {
-        return $this->category;
-    }
-
-    /**
-     * @param mixed $category
-     */
-    public function setCategory($category): void
-    {
-        $this->category = $category;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGenres()
-    {
-        return $this->genres;
-    }
-
-    /**
-     * @param mixed $genres
-     */
-    public function setGenres($genres): void
-    {
-        $this->genres = $genres;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPlatforms()
-    {
-        return $this->platforms;
-    }
-
-    /**
-     * @param mixed $platforms
-     */
-    public function setPlatforms($platforms): void
-    {
-        $this->platforms = $platforms;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCover()
+    public function getCover(): ?string
     {
         return $this->cover;
     }
 
     /**
-     * @param mixed $cover
+     * @param null|array $cover
      */
-    public function setCover($cover): void
+    public function setCover(?array $cover): void
     {
-        $this->cover = $cover;
+        $this->cover = array_key_exists('cloudinary_id', $cover)
+          ? $cover['cloudinary_id']
+          : $cover['url'];
     }
-    private $platforms;
-    private $cover;
 
+    public function getCoverUrl(string $size): string
+    {
+        // Check if an URL is stored or a Cloudinary-ID
+        if (false !== strpos($this->cover, '/')) {
+            return $this->cover;
+        }
+
+        return self::COVER_ENDPOINT . $size . '/' . $this->cover . '.png';
+    }
 }
