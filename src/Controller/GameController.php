@@ -7,6 +7,7 @@ use App\Entity\Game;
 use Doctrine\ORM\EntityManagerInterface;
 use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
+use EN\IgdbApiBundle\Igdb\ValidEndpoints;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\Routing\Annotation\Route;
@@ -71,10 +72,9 @@ class GameController extends AbstractController
             $gamesNormalized = $this->denormalize($games);
 
             $cache->set('games.search.' . $name, $gamesNormalized);
-            dd('kesh');
+        } else {
+            $gamesNormalized = $cache->get('games.search.' . $name);
         }
-
-        $gamesNormalized = $cache->get('games.search.' . $name);
 
         return $this->render('base.html.twig');
     }
@@ -116,7 +116,7 @@ class GameController extends AbstractController
     public function test()
     {
         $this->builder->setLimit(1)->setSearch('mass effect andromeda');
-        $game = $this->wrapper->games($this->builder);
+        $game = $this->wrapper->fetchData(ValidEndpoints::GAMES, $this->builder);
         dd($game);
         $cache = new FilesystemCache();
         dd($cache->get('games.search'));

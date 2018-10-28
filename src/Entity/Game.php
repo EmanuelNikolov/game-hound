@@ -37,7 +37,7 @@ class Game
     private $summary;
 
     /**
-     * @ORM\Column(type="bigint", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $firstReleaseDate;
 
@@ -105,9 +105,9 @@ class Game
     }
 
     /**
-     * @return float|null
+     * @return null|\DateTime
      */
-    public function getFirstReleaseDate(): ?float
+    public function getFirstReleaseDate(): ?\DateTime
     {
         return $this->firstReleaseDate;
     }
@@ -119,7 +119,8 @@ class Game
      */
     public function setFirstReleaseDate(?float $firstReleaseDate): void
     {
-        $this->firstReleaseDate = (int)$firstReleaseDate;
+        $formattedDate = (int)($firstReleaseDate / 1000);
+        $this->firstReleaseDate = (new \DateTime())->setTimestamp($formattedDate);
     }
 
     /**
