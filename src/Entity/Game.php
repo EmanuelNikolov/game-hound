@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Game
 {
 
-    public const COVER_ENDPOINT = 'https://images.igdb.com/igdb/image/upload/';
+    public const COVER_ENDPOINT = 'https://images.igdb.com/igdb/image/upload/t_';
 
     /**
      * @ORM\Id()
@@ -119,8 +119,10 @@ class Game
      */
     public function setFirstReleaseDate(?float $firstReleaseDate): void
     {
-        $formattedDate = (int)($firstReleaseDate / 1000);
-        $this->firstReleaseDate = (new \DateTime())->setTimestamp($formattedDate);
+        if (null !== $firstReleaseDate) {
+            $formattedDate = (int)($firstReleaseDate / 1000);
+            $this->firstReleaseDate = (new \DateTime())->setTimestamp($formattedDate);
+        }
     }
 
     /**
@@ -136,12 +138,14 @@ class Game
      */
     public function setCover(?array $cover): void
     {
-        $this->cover = array_key_exists('cloudinary_id', $cover)
-          ? $cover['cloudinary_id']
-          : $cover['url'];
+        if (null !== $cover) {
+            $this->cover = array_key_exists('cloudinary_id', $cover)
+              ? $cover['cloudinary_id']
+              : $cover['url'];
+        }
     }
 
-    public function getCoverUrl(string $size): string
+    public function getCoverUrl(?string $size): string
     {
         // Check if an URL is stored or a Cloudinary-ID
         if (false !== strpos($this->cover, '/')) {

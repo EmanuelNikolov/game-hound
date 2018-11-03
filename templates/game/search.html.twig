@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Games{% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Results for {{ query }}</h1>
+    <div class="d-flex flex-row flex-wrap justify-content-center">
+        {% for game in games %}
+            {# game \App\Entity\Game #}
+            <a href="{{ path('game_view', {'slug': game.slug}) }}">
+            <div class="p-4">
+                <img src="{{ game.coverUrl('t_cover_big') }}">
+                <p>{{ game.name }}</p>
+            </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}

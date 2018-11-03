@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Games{% endblock %}
+
+{% block body %}
+    <div class="text-center">
+        <h1>{{ game.name }}</h1>
+        <img src="{{ game.coverUrl('720p') }}">
+        <p>Release Date: {{ game.firstReleaseDate|date("d F Y") }}</p>
+        <p>{{ game.summary }}</p>
+    </div>
+{% endblock %}

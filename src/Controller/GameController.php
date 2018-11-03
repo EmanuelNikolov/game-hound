@@ -53,30 +53,21 @@ class GameController extends AbstractController
      * @Route("/search/{name}", name="game_search", methods={"GET"})
      *
      * @param string $name
-     * @param DenormalizerInterface $denormalizer
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public function search(
-      string $name
-    ) {
-        $cache = new FilesystemCache();
-
-        if (!$cache->has('games.search.' . $name)) {
-            $this->builder
-              ->setSearch($name)
-              ->setFields('name,slug,cover');
-            $games = $this->wrapper->games($this->builder);
-            $gamesNormalized = $this->denormalize($games);
-
-            $cache->set('games.search.' . $name, $gamesNormalized);
-        } else {
-            $gamesNormalized = $cache->get('games.search.' . $name);
-        }
-
-        return $this->render('base.html.twig');
+    public function search(string $name)
+    {
+        $this->builder
+          ->setSearch($name)
+          ->setFields('name,slug,cover');
+        $games = $this->wrapper->games($this->builder);
+        $gamesNormalized = $this->denormalize($games);
+        return $this->render('game/search.html.twig', [
+          'games' => $gamesNormalized,
+          'query' => $name,
+        ]);
     }
 
     /**
@@ -98,14 +89,15 @@ class GameController extends AbstractController
               ->setFields('name,slug,summary,first_release_date,cover')
               ->setLimit(1);
 
-            /** @var Game $game */
             $game = $this->denormalize($this->wrapper->games($this->builder))[0];
 
             $em->persist($game);
             $em->flush();
         }
 
-        return $this->render('base.html.twig');
+        return $this->render('game/view.html.twig', [
+          'game' => $game,
+        ]);
     }
 
     /**
@@ -116,7 +108,8 @@ class GameController extends AbstractController
     public function test()
     {
         $this->builder->setLimit(1)->setSearch('mass effect andromeda');
-        $game = $this->wrapper->fetchData(ValidEndpoints::GAMES, $this->builder);
+        $game = $this->wrapper->fetchData(ValidEndpoints::GAMES,
+          $this->builder);
         dd($game);
         $cache = new FilesystemCache();
         dd($cache->get('games.search'));
@@ -132,7 +125,8 @@ class GameController extends AbstractController
         $gamesNormalized = [];
 
         foreach ($games as $game) {
-            $gamesNormalized[] = $this->denormalizer->denormalize($game, Game::class);
+            $gamesNormalized[] = $this->denormalizer->denormalize($game,
+              Game::class);
         }
 
         return $gamesNormalized;
