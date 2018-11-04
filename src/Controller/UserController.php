@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
@@ -64,7 +65,7 @@ class UserController extends AbstractController
      * @param Request $request
      * @param UserPasswordEncoderInterface $userPasswordEncoder
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function register(
       Request $request,
@@ -112,7 +113,7 @@ class UserController extends AbstractController
      * @param string $token
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
     public function registerConfirm(
@@ -162,9 +163,9 @@ class UserController extends AbstractController
      *
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): Response
     {
         $form = $this->createForm(UserResetPasswordType::class);
         $form->handleRequest($request);
@@ -207,7 +208,7 @@ class UserController extends AbstractController
      *
      * @param UserPasswordEncoderInterface $encoder
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
     public function resetPasswordConfirm(
@@ -266,11 +267,10 @@ class UserController extends AbstractController
      *
      * @param User $user
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function profile(
-      User $user
-    ) {
+    public function profile(User $user): Response
+    {
         return $this->render('user/profile.html.twig', ['user' => $user]);
     }
 }

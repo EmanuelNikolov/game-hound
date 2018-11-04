@@ -10,6 +10,7 @@ use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
 use EN\IgdbApiBundle\Igdb\ValidEndpoints;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Simple\FilesystemCache;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -54,16 +55,17 @@ class GameController extends AbstractController
      *
      * @param string $name
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function search(string $name)
+    public function search(string $name): Response
     {
         $this->builder
           ->setSearch($name)
           ->setFields('name,slug,cover');
         $games = $this->wrapper->games($this->builder);
         $gamesNormalized = $this->denormalize($games);
+
         return $this->render('game/search.html.twig', [
           'games' => $gamesNormalized,
           'query' => $name,
@@ -76,12 +78,12 @@ class GameController extends AbstractController
      * @param string $slug
      * @param EntityManagerInterface $em
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function view(string $slug, EntityManagerInterface $em)
+    public function view(string $slug, EntityManagerInterface $em): Response
     {
-        $game = $em->getRepository(Game::class)->findOneBy(['slug' => $slug]);
+        $game = $em->getRepository(Game::class)->findOneBySlug($slug);
 
         if (!$game) {
             $this->builder

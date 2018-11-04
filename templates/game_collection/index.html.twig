@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Latest Collections{% endblock %}
+
+{% block body %}
+    <h1>Latest Collections</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Edit</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for game_collection in game_collections %}
+            <tr>
+                <td>
+                    <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
+                        {{ game_collection.name }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ path('game_collection_edit', {'id': game_collection.id}) }}">Edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">
+                    No collections added yet :(
+                    <br>
+                    <a href="{{ path('game_collection_new') }}">Add one?</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('game_collection_new') }}">Create a new Collection</a>
+{% endblock %}

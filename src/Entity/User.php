@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
@@ -100,10 +102,16 @@ class User implements UserInterface, EquatableInterface
      */
     private $roles;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameCollection", mappedBy="user")
+     */
+    private $gameCollections;
+
     public function __construct()
     {
         $this->roles = [self::ROLE_USER_UNCONFIRMED];
         $this->active = true;
+        $this->gameCollections = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -318,5 +326,36 @@ class User implements UserInterface, EquatableInterface
         }
 
         return true;
+    }
+
+    /**
+     * @return Collection|GameCollection[]
+     */
+    public function getGameCollections(): Collection
+    {
+        return $this->gameCollections;
+    }
+
+    public function addGameCollection(GameCollection $gameCollection): self
+    {
+        if (!$this->gameCollections->contains($gameCollection)) {
+            $this->gameCollections[] = $gameCollection;
+            $gameCollection->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameCollection(GameCollection $gameCollection): self
+    {
+        if ($this->gameCollections->contains($gameCollection)) {
+            $this->gameCollections->removeElement($gameCollection);
+            // set the owning side to null (unless already changed)
+            if ($gameCollection->getUser() === $this) {
+                $gameCollection->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
