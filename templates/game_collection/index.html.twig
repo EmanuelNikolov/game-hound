@@ -3,38 +3,21 @@
 {% block title %}Latest Collections{% endblock %}
 
 {% block body %}
-    <h1>Latest Collections</h1>
+    {% block heading %}<h1>Latest Collections</h1>{% endblock %}
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
+    <div>
         {% for game_collection in game_collections %}
-            <tr>
-                <td>
-                    <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
-                        {{ game_collection.name }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{{ path('game_collection_edit', {'id': game_collection.id}) }}">Edit</a>
-                </td>
-            </tr>
+            <div>
+                <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
+                    {{ game_collection.name }}
+                </a>
+            </div>
         {% else %}
-            <tr>
-                <td colspan="3">
-                    No collections added yet :(
-                    <br>
-                    <a href="{{ path('game_collection_new') }}">Add one?</a>
-                </td>
-            </tr>
+            <div>
+                <p>No collections added yet :(</p>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 
     <a href="{{ path('game_collection_new') }}">Create a new Collection</a>
 {% endblock %}

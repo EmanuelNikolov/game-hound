@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Event\UserEvent;
+use App\FlashMessage\UserMessage as Flash;
 use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
@@ -19,22 +20,6 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
-
-    private const REGISTRATION_CONFIRMED = "Yay! Your account was created, a verification link was sent to your email (つ ♡ ͜ʖ ♡)つ";
-
-    private const INVALID_TOKEN = "Invalid token ¯\_( ͡° ͜ʖ ͡°)_/¯";
-
-    private const EMAIL_CONFIRM_USER_DIFF = "You must be logged into your account to confirm your email ( ͡ಠ ʖ̯ ͡ಠ)";
-
-    private const REGISTRATION_SUCCESS = "Your email has been verified successfully! Enjoy Game Hound ( ͡°з ͡°)";
-
-    private const RESET_PASSWORD_SUCCESS = "You have successfully changed your password. Welcome back! ( ͡°з ͡°)";
-
-    private const RESET_PASSWORD_REQUEST_FAIL = "Sorry, we couldn't find a user account with those credentials ┐( ͡° ʖ̯ ͡°)┌";
-
-    private const RESET_PASSWORD_REQUEST_SUCCESS = "Wooho! A password reset link was sent to your email! ヽ༼ຈل͜ຈ༽ﾉ";
-
-    const RESET_PASSWORD_FAIL = "You have to verify your email before you can reset your password! ( ͡ಠ ʖ̯ ͡ಠ)";
 
     private $guardAuthenticatorHandler;
 
@@ -70,7 +55,7 @@ class UserController extends AbstractController
     public function register(
       Request $request,
       UserPasswordEncoderInterface $userPasswordEncoder
-    ) {
+    ): Response {
         $user = new User();
         $form = $this->createForm(UserRegisterType::class, $user);
         $form->handleRequest($request);
@@ -87,7 +72,8 @@ class UserController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
-            $this->addFlash('success', self::REGISTRATION_CONFIRMED);
+
+            $this->addFlash('success', Flash::REGISTRATION_CONFIRMED);
 
             return $this->guardAuthenticatorHandler
               ->authenticateUserAndHandleSuccess(
@@ -119,7 +105,7 @@ class UserController extends AbstractController
     public function registerConfirm(
       string $token,
       Request $request
-    ) {
+    ): Response {
         $em = $this->getDoctrine()->getManager();
 
         /** @var User $user */
@@ -127,13 +113,13 @@ class UserController extends AbstractController
           ->findOneByConfirmationToken($token);
 
         if (!$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
-            $this->addFlash('danger', self::INVALID_TOKEN);
+            $this->addFlash('danger', Flash::INVALID_TOKEN);
 
             return $this->redirectToRoute('home');
         }
 
         if (!$user->isEqualTo($this->getUser())) {
-            $this->addFlash('danger', self::EMAIL_CONFIRM_USER_DIFF);
+            $this->addFlash('danger', Flash::EMAIL_CONFIRM_USER_DIFF);
 
             return $this->redirectToRoute('home');
         }
@@ -143,7 +129,7 @@ class UserController extends AbstractController
 
         $em->flush();
 
-        $this->addFlash('success', self::REGISTRATION_SUCCESS);
+        $this->addFlash('success', Flash::REGISTRATION_SUCCESS);
 
         return $this->guardAuthenticatorHandler
           ->authenticateUserAndHandleSuccess(
@@ -177,7 +163,7 @@ class UserController extends AbstractController
               ->findOneByEmailOrUsername($formData['login_credential']);
 
             if (!$user) {
-                $form->addError(new FormError(self::RESET_PASSWORD_REQUEST_FAIL));
+                $form->addError(new FormError(Flash::RESET_PASSWORD_REQUEST_FAIL));
             } else {
                 $event = new UserEvent($user);
                 $this->eventDispatcher
@@ -186,7 +172,7 @@ class UserController extends AbstractController
                 $em->flush();
 
                 $this->addFlash('success',
-                  self::RESET_PASSWORD_REQUEST_SUCCESS);
+                  Flash::RESET_PASSWORD_REQUEST_SUCCESS);
 
             }
         }
@@ -215,20 +201,20 @@ class UserController extends AbstractController
       string $token,
       Request $request,
       UserPasswordEncoderInterface $encoder
-    ) {
+    ): Response {
         $em = $this->getDoctrine()->getManager();
         /** @var User $user */
         $user = $em->getRepository(User::class)
           ->findOneByConfirmationToken($token);
 
         if (!$token || !$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
-            $this->addFlash('danger', self::INVALID_TOKEN);
+            $this->addFlash('danger', Flash::INVALID_TOKEN);
 
             return $this->redirectToRoute('user_reset_password');
         }
 
         if (in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
-            $this->addFlash('danger', self::RESET_PASSWORD_FAIL);
+            $this->addFlash('danger', Flash::RESET_PASSWORD_FAIL);
 
             return $this->redirectToRoute('user_reset_password');
         }
@@ -246,7 +232,7 @@ class UserController extends AbstractController
             $user->setPassword($password);
             $em->flush();
 
-            $this->addFlash('success', self::RESET_PASSWORD_SUCCESS);
+            $this->addFlash('success', Flash::RESET_PASSWORD_SUCCESS);
 
             return $this->guardAuthenticatorHandler
               ->authenticateUserAndHandleSuccess(
@@ -263,14 +249,31 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/{username}", name="user_profile", methods={"GET"})
+     * @Route("/{username}", name="user_show", methods="GET")
      *
      * @param User $user
      *
      * @return Response
      */
-    public function profile(User $user): Response
+    public function show(User $user): Response
     {
-        return $this->render('user/profile.html.twig', ['user' => $user]);
+        return $this->render('show.html.twig', ['user' => $user]);
+    }
+
+    /**
+     * @Route(
+     *     "/{username}/collections",
+     *     name="user_show_game_collections",
+     *     methods="GET"
+     * )
+     * @param \App\Entity\User $user
+     *
+     * @return Response
+     */
+    public function showGameCollections(User $user): Response
+    {
+        return $this->render('user/show_game_collections.html.twig', [
+          'user' => $user
+        ]);
     }
 }

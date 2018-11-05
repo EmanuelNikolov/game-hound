@@ -81,7 +81,7 @@ class GameController extends AbstractController
      * @return Response
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function view(string $slug, EntityManagerInterface $em): Response
+    public function show(string $slug, EntityManagerInterface $em): Response
     {
         $game = $em->getRepository(Game::class)->findOneBySlug($slug);
 

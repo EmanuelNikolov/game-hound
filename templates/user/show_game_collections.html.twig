@@ -1,0 +1,10 @@
+{% extends 'game_collection/index.html.twig' %}
+
+{% block title %}{{ user.username }}'s Collections{% endblock %}
+
+{% block heading %}<h1>{{ user.username }}'s Collections</h1>{% endblock %}
+
+{% block body %}
+    {% set game_collections = user.gameCollections %}
+    {{ parent() }}
+{% endblock %}

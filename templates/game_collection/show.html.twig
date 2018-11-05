@@ -1,21 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}GameCollection{% endblock %}
+{% block title %}{{ game_collection.name }}{% endblock %}
 
 {% block body %}
     <h1>{{ game_collection.name }}</h1>
 
-    {% set username = game_collection.user.username %}
-    <h2>Created by: <a href="{{ path('user_profile', {'username': username}) }}">{{ username }}</a></h2>
+    {% set username, granted = game_collection.user.username, is_granted('edit', game_collection) %}
+    <h2>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h2>
 
     <table class="table">
         <tbody>
+        {% set remove_button %}
+            {% if granted %}
+                <td>
+                    <a class="btn btn-primary"
+                       href="{{ path('game_collection_edit', {'id': game_collection.id}) }}"
+                       role="button">
+                        Remove
+                    </a>
+                </td>
+            {% endif %}
+        {% endset %}
+
         {% for game in game_collection.games %}
             {# game \App\Entity\Game #}
             <tr>
                 <td>{{ game.coverUrl('cover_small') }}</td>
                 <td><a href="{{ path('game_view', {'slug': game.slug}) }}">{{ game.name }}</a></td>
-                <td></td>
+                {{ remove_button }}
             </tr>
         {% else %}
             <tr>
@@ -26,9 +38,8 @@
 
     </table>
 
-    {% if app.user is same as(game_collection.user) %}
+    {% if granted %}
         <a href="{{ path('game_collection_edit', {'id': game_collection.id}) }}">Add a game</a>
+        {{ include('game_collection/_delete_form.html.twig') }}
     {% endif %}
-
-    {{ include('game_collection/_delete_form.html.twig') }}
 {% endblock %}
