@@ -7,11 +7,9 @@ use App\Entity\GameCollection;
 use App\FlashMessage\GameCollectionMessage as Flash;
 use App\Form\GameCollectionType;
 use App\Repository\CollectionRepository;
-use App\Security\Voter\GameCollectionVoter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -64,42 +62,42 @@ class GameCollectionController extends AbstractController
     /**
      * @Route("/collection/{id}", name="game_collection_show", methods="GET")
      *
-     * @param GameCollection $gameCollection
+     * @param GameCollection $collection
      *
      * @return Response
      */
-    public function show(GameCollection $gameCollection): Response
+    public function show(GameCollection $collection): Response
     {
-        return $this->render('game_collection/show.html.twig',
-          ['game_collection' => $gameCollection]);
+        return $this->render('game_collection/show.html.twig', [
+          'game_collection' => $collection
+        ]);
     }
 
     /**
-     * @Route("/collection/{id}/edit", name="game_collection_edit",
-     *   methods="GET|POST")
+     * @Route(
+     *     "/collection/{id}/edit",
+     *     name="game_collection_edit",
+     *     methods="GET|POST"
+     * )
+     * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
      * @param Request $request
-     * @param GameCollection $gameCollection
+     * @param GameCollection $collection
      *
      * @return Response
      */
     public function update(
       Request $request,
-      GameCollection $gameCollection
+      GameCollection $collection
     ): Response {
-        $this->denyAccessUnlessGranted(
-          GameCollectionVoter::EDIT,
-          $gameCollection
-        );
-
-        $form = $this->createForm(GameCollectionType::class, $gameCollection);
+        $form = $this->createForm(GameCollectionType::class, $collection);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('game_collection_edit', [
-              'id' => $gameCollection->getId(),
+              'id' => $collection->getId(),
             ]);
         }
 
@@ -109,31 +107,30 @@ class GameCollectionController extends AbstractController
     }
 
     /**
-     * @Route("/collection/{id}", name="game_collection_delete",
-     *   methods="DELETE")
+     * @Route(
+     *     "/collection/{id}",
+     *     name="game_collection_delete",
+     *     methods="DELETE"
+     * )
+     * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
      * @param Request $request
-     * @param GameCollection $gameCollection
+     * @param GameCollection $collection
      *
-     * @return RedirectResponse
+     * @return Response
      */
     public function delete(
       Request $request,
-      GameCollection $gameCollection
-    ): RedirectResponse {
-        $this->denyAccessUnlessGranted(
-          GameCollectionVoter::EDIT,
-          $gameCollection
-        );
-
+      GameCollection $collection
+    ): Response {
         $validation = $this->isCsrfTokenValid(
-          'delete' . $gameCollection->getId(),
+          'delete' . $collection->getId(),
           $request->request->get('_token')
         );
 
         if ($validation) {
             $em = $this->getDoctrine()->getManager();
-            $em->remove($gameCollection);
+            $em->remove($collection);
             $em->flush();
         }
 
@@ -144,15 +141,17 @@ class GameCollectionController extends AbstractController
      * @Route(
      *     "/collection/{id}/add/{game_id}",
      *     name="game_collection_add",
-     *     methods="GET"
+     *     methods="POST"
      * )
      * @ParamConverter("game", options={"id" = "game_id"})
      * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
      * @param GameCollection $collection
      * @param Game $game
+     *
+     * @return Response
      */
-    public function add(GameCollection $collection, Game $game)
+    public function add(GameCollection $collection, Game $game): Response
     {
         // TODO
     }
@@ -168,8 +167,10 @@ class GameCollectionController extends AbstractController
      *
      * @param GameCollection $collection
      * @param Game $game
+     *
+     * @return Response
      */
-    public function remove(GameCollection $collection, Game $game)
+    public function remove(GameCollection $collection, Game $game): Response
     {
         // TODO
     }
