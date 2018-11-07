@@ -73,7 +73,7 @@ class GameController extends AbstractController
     }
 
     /**
-     * @Route("game/{slug}", name="game_view", methods={"GET"})
+     * @Route("game/{slug}", name="game_show", methods={"GET"})
      *
      * @param string $slug
      * @param EntityManagerInterface $em
@@ -97,7 +97,7 @@ class GameController extends AbstractController
             $em->flush();
         }
 
-        return $this->render('game/view.html.twig', [
+        return $this->render('game/show.html.twig', [
           'game' => $game,
         ]);
     }

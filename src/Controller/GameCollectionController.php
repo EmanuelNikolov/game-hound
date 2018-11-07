@@ -10,6 +10,7 @@ use App\Repository\CollectionRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -153,7 +154,11 @@ class GameCollectionController extends AbstractController
      */
     public function add(GameCollection $collection, Game $game): Response
     {
-        // TODO
+        $collection->addGame($game);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse();
     }
 
     /**
@@ -172,6 +177,10 @@ class GameCollectionController extends AbstractController
      */
     public function remove(GameCollection $collection, Game $game): Response
     {
-        // TODO
+        $collection->removeGame($game);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse();
     }
 }

@@ -7,7 +7,7 @@
     <div class="d-flex flex-row flex-wrap justify-content-center">
         {% for game in games %}
             {# game \App\Entity\Game #}
-            <a href="{{ path('game_view', {'slug': game.slug}) }}">
+            <a href="{{ path('game_show', {'slug': game.slug}) }}">
             <div class="p-4">
                 <img src="{{ game.coverUrl('t_cover_big') }}">
                 <p>{{ game.name }}</p>

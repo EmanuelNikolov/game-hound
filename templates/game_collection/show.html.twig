@@ -5,29 +5,25 @@
 {% block body %}
     <h1>{{ game_collection.name }}</h1>
 
-    {% set username, granted = game_collection.user.username, is_granted('edit', game_collection) %}
+    {% set username, granted = game_collection.user.username, is_granted('GAME_COLLECTION_EDIT', game_collection) %}
     <h2>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h2>
 
     <table class="table">
         <tbody>
-        {% set remove_button %}
-            {% if granted %}
-                <td>
-                    <a class="btn btn-primary"
-                       href="{{ path('game_collection_edit', {'id': game_collection.id}) }}"
-                       role="button">
-                        Remove
-                    </a>
-                </td>
-            {% endif %}
-        {% endset %}
-
         {% for game in game_collection.games %}
             {# game \App\Entity\Game #}
             <tr>
                 <td>{{ game.coverUrl('cover_small') }}</td>
-                <td><a href="{{ path('game_view', {'slug': game.slug}) }}">{{ game.name }}</a></td>
-                {{ remove_button }}
+                <td><a href="{{ path('game_show', {'slug': game.slug}) }}">{{ game.name }}</a></td>
+                {% if granted %}
+                    <td>
+                        <a class="btn btn-primary"
+                           href="{{ path('game_collection_remove', {'id': game_collection.id, 'game_id': game.id}) }}"
+                           role="button">
+                            Remove
+                        </a>
+                    </td>
+                {% endif %}
             </tr>
         {% else %}
             <tr>
@@ -35,11 +31,10 @@
             </tr>
         {% endfor %}
         </tbody>
-
     </table>
 
     {% if granted %}
-        <a href="{{ path('game_collection_edit', {'id': game_collection.id}) }}">Add a game</a>
-        {{ include('game_collection/_delete_form.html.twig') }}
+        <a href="#">Add a game</a>
+        {{ include('game_collection/_delete_form.html.twig', {'id': game_collection.id}) }}
     {% endif %}
 {% endblock %}

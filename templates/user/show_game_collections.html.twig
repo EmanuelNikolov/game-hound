@@ -2,9 +2,8 @@
 
 {% block title %}{{ user.username }}'s Collections{% endblock %}
 
-{% block heading %}<h1>{{ user.username }}'s Collections</h1>{% endblock %}
-
 {% block body %}
-    {% set game_collections = user.gameCollections %}
-    {{ parent() }}
+    <h1>{{ user.username }}'s Collections</h1>
+
+    {{ include('game_collection/_list.html.twig', {'game_collections': user.gameCollections}) }}
 {% endblock %}

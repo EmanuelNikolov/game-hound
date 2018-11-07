@@ -1,0 +1,16 @@
+<div>
+    {% for game_collection in game_collections %}
+        <div>
+            <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
+                {{ game_collection.name }}
+            </a>
+            {% if is_granted('GAME_COLLECTION_EDIT', game_collection) %}
+                {{ include('game_collection/_delete_form.html.twig') }}
+            {% endif %}
+        </div>
+    {% else %}
+        <div>
+            <p>No collections added yet :(</p>
+        </div>
+    {% endfor %}
+</div>

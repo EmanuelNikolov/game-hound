@@ -3,21 +3,11 @@
 {% block title %}Latest Collections{% endblock %}
 
 {% block body %}
-    {% block heading %}<h1>Latest Collections</h1>{% endblock %}
+    <h1>Latest Collections</h1>
 
-    <div>
-        {% for game_collection in game_collections %}
-            <div>
-                <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
-                    {{ game_collection.name }}
-                </a>
-            </div>
-        {% else %}
-            <div>
-                <p>No collections added yet :(</p>
-            </div>
-        {% endfor %}
-    </div>
+    {{ include('game_collection/_list.html.twig') }}
 
-    <a href="{{ path('game_collection_new') }}">Create a new Collection</a>
+    {% if app.user %}
+        <a href="{{ path('game_collection_new') }}">Create a new Collection</a>
+    {% endif %}
 {% endblock %}
