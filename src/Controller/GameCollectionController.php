@@ -126,16 +126,18 @@ class GameCollectionController extends AbstractController
     ): Response {
         $validation = $this->isCsrfTokenValid(
           'delete' . $collection->getId(),
-          $request->request->get('_token')
+          $request->request->get('token')
         );
 
         if ($validation) {
             $em = $this->getDoctrine()->getManager();
             $em->remove($collection);
             $em->flush();
+
+            return new JsonResponse();
         }
 
-        return $this->redirectToRoute('game_collection_index');
+        return new JsonResponse(null, 403);
     }
 
     /**
@@ -163,7 +165,7 @@ class GameCollectionController extends AbstractController
 
     /**
      * @Route(
-     *     "collection/{id}/remove/{game_id}",
+     *     "/collection/{id}/remove/{game_id}",
      *     name="game_collection_remove",
      *     methods="DELETE"
      * )

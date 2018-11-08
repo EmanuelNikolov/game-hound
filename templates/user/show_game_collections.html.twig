@@ -7,3 +7,8 @@
 
     {{ include('game_collection/_list.html.twig', {'game_collections': user.gameCollections}) }}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/game-collection.js') }}"></script>
+{% endblock %}
