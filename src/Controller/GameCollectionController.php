@@ -126,7 +126,7 @@ class GameCollectionController extends AbstractController
     ): Response {
         $validation = $this->isCsrfTokenValid(
           'delete' . $collection->getId(),
-          $request->request->get('token')
+          $request->request->get('_token')
         );
 
         if ($validation) {
@@ -134,10 +134,12 @@ class GameCollectionController extends AbstractController
             $em->remove($collection);
             $em->flush();
 
-            return new JsonResponse();
+            $this->addFlash('success', Flash::COLLECTION_DELETED);
         }
 
-        return new JsonResponse(null, 403);
+        return $this->redirectToRoute('user_show_game_collections', [
+          'username' => $collection->getUser()->getUsername(),
+        ]);
     }
 
     /**

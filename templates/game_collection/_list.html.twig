@@ -1,20 +1,10 @@
-<div>
-    {% set granted = is_granted('GAME_COLLECTION_EDIT', game_collections|first) %}
-
+<div class="collections-container">
     {% for game_collection in game_collections %}
-        <div class="collections-container">
-            <div>
-                <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
-                    {{ game_collection.name }}
-                </a>
-                {% if granted %}
-                    <a class="btn btn-primary collection-delete"
-                       href="{{ path('game_collection_delete', {'id': game_collection.id}) }}"
-                       data-csrf="{{ csrf_token('delete' ~ game_collection.id) }}">
-                        Delete
-                    </a>
-                {% endif %}
-            </div>
+        <div class="collection">
+            <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
+                {{ game_collection.name }}
+            </a>
+            {% block delete_button %}{% endblock %}
         </div>
     {% else %}
         <div>

@@ -17,9 +17,9 @@
                 <td><a href="{{ path('game_show', {'slug': game.slug}) }}">{{ game.name }}</a></td>
                 {% if granted %}
                     <td>
-                        <a class="btn btn-primary"
-                           href="{{ path('game_collection_remove', {'id': game_collection.id, 'game_id': game.id}) }}"
-                           role="button">
+                        <a class="btn btn-primary btn-game-remove"
+                           href="{{ path('game_collection_remove', {'id': game.id}) }}"
+                           data-csrf="{{ csrf_token('dete' ~ game.id) }}">
                             Remove
                         </a>
                     </td>
@@ -34,7 +34,14 @@
     </table>
 
     {% if granted %}
-        <a href="#">Add a game</a>
-        {{ include('game_collection/_delete_form.html.twig', {'id': game_collection.id}) }}
+        <div class="actions">
+            <a class="btn btn-primary" href="#">Add a game</a>
+            {{ include('game_collection/_delete_form.html.twig') }}
+        </div>
     {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/game-collection.js') }}"></script>
 {% endblock %}
