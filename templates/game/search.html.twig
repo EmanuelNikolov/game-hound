@@ -4,15 +4,21 @@
 
 {% block body %}
     <h1 class="text-center">Results for {{ query }}</h1>
-    <div class="d-flex flex-row flex-wrap justify-content-center">
+    <div class="results d-flex flex-row flex-wrap justify-content-center"
+         data-url="{{ path('game_search_scroll') }}">
         {% for game in games %}
             {# game \App\Entity\Game #}
             <a href="{{ path('game_show', {'slug': game.slug}) }}">
             <div class="p-4">
-                <img src="{{ game.coverUrl('t_cover_big') }}">
+                <img src="{{ game.coverUrl('cover_uniform') }}">
                 <p>{{ game.name }}</p>
             </div>
             </a>
         {% endfor %}
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/game-search.js') }}"></script>
 {% endblock %}

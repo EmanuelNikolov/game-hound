@@ -5,7 +5,7 @@
 {% block body %}
     <div class="text-center">
         <h1>{{ game.name }}</h1>
-        <img alt="{{ game.name }}" src="{{ game.coverUrl('720p') }}">
+        <img alt="{{ game.name }}" src="{{ game.coverUrl('cover_uniform') }}">
         <p>Release Date: {{ game.firstReleaseDate|date("d F Y") }}</p>
         <p>{{ game.summary }}</p>
     </div>

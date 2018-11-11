@@ -14,6 +14,8 @@ class Game
 
     public const COVER_ENDPOINT = 'https://images.igdb.com/igdb/image/upload/t_';
 
+    public const FALLBACK_IMG = '';
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -142,6 +144,8 @@ class Game
             $this->cover = array_key_exists('cloudinary_id', $cover)
               ? $cover['cloudinary_id']
               : $cover['url'];
+        } else {
+            $this->cover = self::FALLBACK_IMG;
         }
     }
 
