@@ -3,22 +3,32 @@
 {% block title %}Games{% endblock %}
 
 {% block body %}
-    <h1 class="text-center">Results for {{ query }}</h1>
-    <div class="results d-flex flex-row flex-wrap justify-content-center"
-         data-url="{{ path('game_search_scroll') }}">
-        {% for game in games %}
-            {# game \App\Entity\Game #}
-            <a href="{{ path('game_show', {'slug': game.slug}) }}">
-            <div class="p-4">
-                <img src="{{ game.coverUrl('cover_uniform') }}">
-                <p>{{ game.name }}</p>
+    <h1 class="text-center">Results for <em>{{ query }}</em></h1>
+
+    <div class="results" data-url="{{ path('game_search_scroll') }}">
+
+        {% for row in games|batch(3) %}
+            <div class="row">
+                {% for game in row %}
+                <div class="col-lg-4">
+                    {# game \App\Entity\Game #}
+                    <div class="card">
+                        <a href="{{ path('game_show', {'slug': game.slug}) }}">
+                            <img src="{{ game.coverUrl('cover_uniform') }}" class="card-img-top">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ game.name }}</h5>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
             </div>
-            </a>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/game-search.js') }}"></script>
+    <script src="{{ asset('build/search.js') }}"></script>
 {% endblock %}
