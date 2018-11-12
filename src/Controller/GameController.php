@@ -81,8 +81,8 @@ class GameController extends AbstractController
         $this->builder
           ->setSearch($name)
           ->setFields('name,slug,cover')
-          ->setLimit(9)
           ->setScroll(1);
+
         $games = $this->wrapper->games($this->builder);
         $gamesNormalized = $this->denormalize($games);
 
