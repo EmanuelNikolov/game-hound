@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use Doctrine\ORM\EntityManagerInterface;
-use EN\IgdbApiBundle\Igdb\IgdbWrapper;
 use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
 use EN\IgdbApiBundle\Igdb\ValidEndpoints;
@@ -16,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class GameController extends AbstractController
@@ -53,13 +53,11 @@ class GameController extends AbstractController
         $this->denormalizer = $denormalizer;
     }
 
-
     /**
-     * @Route("/search/{name}", name="game_search", methods={"GET"})
-     * @Route("/search/scroll", name="game_search_scroll", methods={"GET"})
+     * @Route("/game/search/{name}", name="game_search_scroll", methods={"GET"})
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+     * @param Request $request
+     * @param SessionInterface $session
      * @param string $name
      *
      * @return Response
@@ -72,30 +70,25 @@ class GameController extends AbstractController
       string $name
     ): Response {
         if ($request->isXmlHttpRequest()) {
-            $scrollHeader = $session->get('scroll');
-            $games = $this->wrapper->scroll($scrollHeader);
+            $this->builder
+              ->setSearch($name)
+              ->setFields('name,slug,cover')
+              ->setScroll(1);
 
-            return new JsonResponse($games);
+            $scrollHeader = $this->wrapper->getScrollNextPage();
+            $session->set('scroll', $scrollHeader);
+            $games = $this->wrapper->fetchDataAsJson(
+              ValidEndpoints::GAMES,
+              $this->builder
+            );
+
+            $scrollHeader = $session->get('scroll');
+            $games = $this->wrapper->scrollJson($scrollHeader);
+
+            return JsonResponse::fromJsonString($games);
         }
 
-        $this->builder
-          ->setSearch($name)
-          ->setFields('name,slug,cover')
-          ->setScroll(1);
-
-        $games = $this->wrapper->games($this->builder);
-        $gamesNormalized = $this->denormalize($games);
-
-        $scrollHeader = $this->wrapper->getScrollHeader(
-          $this->wrapper->getResponse(),
-          IgdbWrapper::SCROLL_NEXT_PAGE
-        );
-        $session->set('scroll', $scrollHeader);
-
-        return $this->render('game/search.html.twig', [
-          'games' => $gamesNormalized,
-          'query' => $name,
-        ]);
+        return new JsonResponse(null, 403);
     }
 
     /**
@@ -153,8 +146,12 @@ class GameController extends AbstractController
         $gamesNormalized = [];
 
         foreach ($games as $game) {
-            $gamesNormalized[] = $this->denormalizer->denormalize($game,
-              Game::class);
+            $gamesNormalized[] = $this->denormalizer->denormalize(
+              $game,
+              Game::class,
+              null,
+              [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
+            );
         }
 
         return $gamesNormalized;

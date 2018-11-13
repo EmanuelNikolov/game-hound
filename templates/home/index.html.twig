@@ -1,11 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Game Hound{% endblock %}
+{% block title %}Games{% endblock %}
 
 {% block body %}
+    {#<h1 class="text-center">Results for <em>{{ query }}</em></h1>#}
+    <input type="text" id="search" class="form-control mt-5" placeholder="Search" aria-label="Search">
 
-<div>
-    <h1>Welcome to Game Hound!</h1>
-    {% include 'default/session_flash_bag.html.twig' %}
-</div>
+    <h1 class="text-center mt-5 mb-5">Recently added games</h1>
+
+    <div class="card-deck">
+        {% for game in games %}
+            {# game \App\Entity\Game #}
+            <div class="card mb-4">
+                <a href="{{ path('game_show', {'slug': game.slug}) }}">
+                    <img src="{{ game.coverUrl('cover_uniform') }}" class="card-img-top img-fluid">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ game.name }}</h5>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('js/search') }}
 {% endblock %}

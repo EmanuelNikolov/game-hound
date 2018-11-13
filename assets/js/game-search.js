@@ -1,3 +1,11 @@
+import UI from "./game-search-ui";
+
+let ui = new UI();
+
+function getCards() {
+    $.ajax();
+}
+
 let scrollLoad = true;
 
 $(window).scroll(function () {

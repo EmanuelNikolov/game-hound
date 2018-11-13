@@ -6,7 +6,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
  * @ORM\Table(name="games")
  */
 class Game
@@ -44,6 +44,7 @@ class Game
     private $firstReleaseDate;
 
     /**
+     * @var []
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $cover;
