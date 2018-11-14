@@ -3,7 +3,7 @@ class UI {
         this.container = $(".js-card-container");
         this.mainHeading = $("h1");
         this.baseUrl = "http://127.0.0.1:8000/game/";
-        this.nextPageHeader = '';
+        this.offset = 0;
         this.alert = $(".alert");
     }
 
@@ -56,7 +56,7 @@ class UI {
         let load = ``;
 
         if (xhr.status === 200) {
-            this.nextPageHeader = xhr.getResponseHeader("X-Next-Page");
+            this.offset = xhr.getResponseHeader("Offset");
 
             load = `
                     <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn" 

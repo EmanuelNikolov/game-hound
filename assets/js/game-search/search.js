@@ -14,7 +14,7 @@ function getGames() {
         }).done((games, status, xhr) => {
                 ui.changeMainHeading(box.val());
                 ui.showGames(games, true);
-                ui.showLoadButton(xhr, games.length);
+                ui.showLoadButton(xhr);
             }
         ).fail(xhr => ui.showLoadButton(xhr));
     } else {
@@ -24,13 +24,12 @@ function getGames() {
 
 function loadMore() {
     const box = $(".js-search-box");
-console.log(ui.nextPageHeader);
+
     $.ajax({
-        url: `${ui.baseUrl}search/${box.val()}`,
-        dataType: "json",
-        headers: {"X-Next-Page": ui.nextPageHeader}
+        url: `${ui.baseUrl}search/${box.val()}?offset=${Number(ui.offset)}`,
+        dataType: "json"
     }).done((games, status, xhr) => {
         ui.showGames(games);
-        ui.showLoadButton(xhr, games.length);
+        ui.showLoadButton(xhr);
     }).fail(xhr => ui.showLoadButton(xhr));
 }

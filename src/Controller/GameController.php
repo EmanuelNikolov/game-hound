@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use Doctrine\ORM\EntityManagerInterface;
-use EN\IgdbApiBundle\Igdb\IgdbWrapper;
 use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
 use EN\IgdbApiBundle\Igdb\ValidEndpoints;
@@ -71,7 +70,6 @@ class GameController extends AbstractController
             return new JsonResponse(null, 403);
         }
 
-        $pageOffset = IgdbWrapper::SCROLL_NEXT_PAGE;
         $pageLimit = 8;
 
         $this->builder
@@ -79,25 +77,27 @@ class GameController extends AbstractController
           ->setFields('name,slug,cover')
           ->setLimit($pageLimit);
 
-        if ($request->headers->has($pageOffset)) {
-            $nextPage = $request->headers->get($pageOffset);
-            $this->builder->setOffset($nextPage + $pageLimit);
+        if ($request->query->has('offset')) {
+            $pageOffset = $request->query->get('offset') + $pageLimit;
+            $this->builder->setOffset((int)$pageOffset);
+
             $games = $this->wrapper->fetchDataAsJson(
               ValidEndpoints::GAMES,
               $this->builder
             );
         } else {
-            $games = $this->wrapper->fetchDataAsJson(
-              ValidEndpoints::GAMES,
-              $this->builder
-            );
-            $nextPage = 0;
+            $pageOffset = 0 + $pageLimit;
         }
+
+        $games = $this->wrapper->fetchDataAsJson(
+          ValidEndpoints::GAMES,
+          $this->builder
+        );
 
         $statusCode = $this->wrapper->getResponse()->getStatusCode();
 
         return JsonResponse::fromJsonString($games, $statusCode, [
-          $pageOffset => $nextPage,
+          'Offset' => $pageOffset,
         ]);
     }
 
