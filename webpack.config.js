@@ -18,7 +18,7 @@ Encore
      * and one CSS file (e.g. app.css) if you JavaScript imports CSS.
      */
     .addEntry("js/app", "./assets/js/app.js")
-    .addEntry("js/search", "./assets/js/game-search.js")
+    .addEntry("js/search", "./assets/js/game-search/search.js")
     .addEntry("js/collection", "./assets/js/game-collection.js")
     .addStyleEntry("css/global", "./assets/css/global.scss")
 

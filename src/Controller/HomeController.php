@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Game;
+use App\Repository\GameRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,13 +12,15 @@ class HomeController extends AbstractController
 
     /**
      * @Route("/", name="home", methods={"GET"})
+     *
+     * @param \App\Repository\GameRepository $repo
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(): Response
+    public function index(GameRepository $repo): Response
     {
-        $games = $this->getDoctrine()->getRepository(Game::class)->findLatest();
-
         return $this->render('home/index.html.twig', [
-          'games' => $games,
+          'games' => $repo->findLatest(),
         ]);
     }
 }

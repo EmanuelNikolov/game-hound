@@ -3,20 +3,32 @@
 {% block title %}Games{% endblock %}
 
 {% block body %}
-    {#<h1 class="text-center">Results for <em>{{ query }}</em></h1>#}
-    <input type="text" id="search" class="form-control mt-5" placeholder="Search" aria-label="Search">
+    <div class="row">
+        <div class="col-6 mx-auto mt-5">
+            <div class="alert alert-danger" role="alert" style="display:none"></div>
+            <div class="input-group ">
+                <input type="text" class="form-control js-search-box" placeholder="Enter a game's name, edition etc."
+                       aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-primary js-search-btn" type="button">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h1 class="text-center mt-5 mb-5">Recently added games</h1>
+    <h1 class="text-center my-5">Recently added games</h1>
 
-    <div class="card-deck">
+    <div class="row js-card-container">
         {% for game in games %}
             {# game \App\Entity\Game #}
-            <div class="card mb-4">
-                <a href="{{ path('game_show', {'slug': game.slug}) }}">
-                    <img src="{{ game.coverUrl('cover_uniform') }}" class="card-img-top img-fluid">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">{{ game.name }}</h5>
+            <div class="col-sm-6 col-md-5 col-lg-3 mx-auto mb-4">
+                <div class="card">
+                    <a href="{{ path('game_show', {'slug': game.slug}) }}">
+                        <img src="{{ game.coverUrl('cover_uniform') }}" class="card-img-top">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">{{ game.name }}</h5>
+                    </div>
                 </div>
             </div>
         {% endfor %}

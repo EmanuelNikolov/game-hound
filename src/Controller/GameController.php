@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use Doctrine\ORM\EntityManagerInterface;
+use EN\IgdbApiBundle\Igdb\IgdbWrapper;
 use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
 use EN\IgdbApiBundle\Igdb\ValidEndpoints;
@@ -13,7 +14,6 @@ use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -54,10 +54,9 @@ class GameController extends AbstractController
     }
 
     /**
-     * @Route("/game/search/{name}", name="game_search_scroll", methods={"GET"})
+     * @Route("/game/search/{name}", name="game_search", methods={"GET"})
      *
      * @param Request $request
-     * @param SessionInterface $session
      * @param string $name
      *
      * @return Response
@@ -66,29 +65,40 @@ class GameController extends AbstractController
      */
     public function search(
       Request $request,
-      SessionInterface $session,
       string $name
     ): Response {
-        if ($request->isXmlHttpRequest()) {
-            $this->builder
-              ->setSearch($name)
-              ->setFields('name,slug,cover')
-              ->setScroll(1);
+        if (!$request->isXmlHttpRequest()) {
+            return new JsonResponse(null, 403);
+        }
 
-            $scrollHeader = $this->wrapper->getScrollNextPage();
-            $session->set('scroll', $scrollHeader);
+        $pageOffset = IgdbWrapper::SCROLL_NEXT_PAGE;
+        $pageLimit = 8;
+
+        $this->builder
+          ->setSearch($name)
+          ->setFields('name,slug,cover')
+          ->setLimit($pageLimit);
+
+        if ($request->headers->has($pageOffset)) {
+            $nextPage = $request->headers->get($pageOffset);
+            $this->builder->setOffset($nextPage + $pageLimit);
             $games = $this->wrapper->fetchDataAsJson(
               ValidEndpoints::GAMES,
               $this->builder
             );
-
-            $scrollHeader = $session->get('scroll');
-            $games = $this->wrapper->scrollJson($scrollHeader);
-
-            return JsonResponse::fromJsonString($games);
+        } else {
+            $games = $this->wrapper->fetchDataAsJson(
+              ValidEndpoints::GAMES,
+              $this->builder
+            );
+            $nextPage = 0;
         }
 
-        return new JsonResponse(null, 403);
+        $statusCode = $this->wrapper->getResponse()->getStatusCode();
+
+        return JsonResponse::fromJsonString($games, $statusCode, [
+          $pageOffset => $nextPage,
+        ]);
     }
 
     /**
@@ -116,22 +126,21 @@ class GameController extends AbstractController
             $em->flush();
         }
 
-        return $this->render('game/show.html.twig', [
-          'game' => $game,
-        ]);
+        return $this->render('game/show.html.twig', ['game' => $game]);
     }
 
     /**
-     * @Route("test")
+     * @Route("/test")
+     * @throws \EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function test()
     {
-        $this->builder->setLimit(1)->setSearch('mass effect andromeda');
-        $game = $this->wrapper->fetchData(ValidEndpoints::GAMES,
+        $this->builder->setLimit(30)->setSearch('mass')->setFields('name,cover');
+        $games = $this->wrapper->fetchData(ValidEndpoints::GAMES,
           $this->builder);
-        dd($game);
+        dd($games);
         $cache = new FilesystemCache();
         dd($cache->get('games.search'));
     }

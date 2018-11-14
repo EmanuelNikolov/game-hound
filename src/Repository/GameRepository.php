@@ -24,8 +24,9 @@ class GameRepository extends ServiceEntityRepository
     public function findLatest()
     {
         return $this->createQueryBuilder('g')
+          ->where('g.cover IS NOT NULL')
           ->orderBy('g.id', 'DESC')
-          ->setMaxResults(5)
+          ->setMaxResults(4)
           ->getQuery()
           ->getResult()
           ;
