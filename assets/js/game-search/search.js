@@ -26,7 +26,7 @@ function loadMore() {
     const box = $(".js-search-box");
 
     $.ajax({
-        url: `${ui.baseUrl}search/${box.val()}?offset=${Number(ui.offset)}`,
+        url: `${ui.baseUrl}search/${box.val()}?offset=${ui.offset}`,
         dataType: "json"
     }).done((games, status, xhr) => {
         ui.showGames(games);

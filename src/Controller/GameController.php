@@ -9,7 +9,6 @@ use EN\IgdbApiBundle\Igdb\IgdbWrapperInterface;
 use EN\IgdbApiBundle\Igdb\Parameter\ParameterBuilderInterface;
 use EN\IgdbApiBundle\Igdb\ValidEndpoints;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,7 +58,6 @@ class GameController extends AbstractController
      * @param string $name
      *
      * @return Response
-     * @throws \EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function search(
@@ -80,13 +78,8 @@ class GameController extends AbstractController
         if ($request->query->has('offset')) {
             $pageOffset = $request->query->get('offset') + $pageLimit;
             $this->builder->setOffset((int)$pageOffset);
-
-            $games = $this->wrapper->fetchDataAsJson(
-              ValidEndpoints::GAMES,
-              $this->builder
-            );
         } else {
-            $pageOffset = 0 + $pageLimit;
+            $pageOffset = $pageLimit;
         }
 
         $games = $this->wrapper->fetchDataAsJson(
@@ -96,6 +89,7 @@ class GameController extends AbstractController
 
         $statusCode = $this->wrapper->getResponse()->getStatusCode();
 
+        // Send page offset as a header.
         return JsonResponse::fromJsonString($games, $statusCode, [
           'Offset' => $pageOffset,
         ]);
@@ -112,7 +106,7 @@ class GameController extends AbstractController
      */
     public function show(string $slug, EntityManagerInterface $em): Response
     {
-        $game = $em->getRepository(Game::class)->findOneBySlug($slug);
+        $game = $em->getRepository(Game::class)->findOneBy(['slug' => $slug]);
 
         if (!$game) {
             $this->builder
@@ -127,22 +121,6 @@ class GameController extends AbstractController
         }
 
         return $this->render('game/show.html.twig', ['game' => $game]);
-    }
-
-    /**
-     * @Route("/test")
-     * @throws \EN\IgdbApiBundle\Exception\ScrollHeaderNotFoundException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    public function test()
-    {
-        $this->builder->setLimit(30)->setSearch('mass')->setFields('name,cover');
-        $games = $this->wrapper->fetchData(ValidEndpoints::GAMES,
-          $this->builder);
-        dd($games);
-        $cache = new FilesystemCache();
-        dd($cache->get('games.search'));
     }
 
     /**

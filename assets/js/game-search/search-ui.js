@@ -89,7 +89,7 @@ class UI {
         if (cloudinary_id !== undefined) {
             let base = "https://images.igdb.com/igdb/image/upload/t_";
 
-            return `${base}cover_uniform/${cloudinary_id}.png`;
+            return `${base}cover_small/${cloudinary_id}.png`;
         }
 
         return url;

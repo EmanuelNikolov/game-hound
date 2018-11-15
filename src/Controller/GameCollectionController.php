@@ -70,7 +70,7 @@ class GameCollectionController extends AbstractController
     public function show(GameCollection $collection): Response
     {
         return $this->render('game_collection/show.html.twig', [
-          'game_collection' => $collection
+          'game_collection' => $collection,
         ]);
     }
 
@@ -151,18 +151,26 @@ class GameCollectionController extends AbstractController
      * @ParamConverter("game", options={"id" = "game_id"})
      * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
+     * @param Request $request
      * @param GameCollection $collection
      * @param Game $game
      *
      * @return Response
      */
-    public function add(GameCollection $collection, Game $game): Response
-    {
+    public function add(
+      Request $request,
+      GameCollection $collection,
+      Game $game
+    ): Response {
+        if (!$request->isXmlHttpRequest()) {
+            return new JsonResponse(null, 403);
+        }
+
         $collection->addGame($game);
 
         $this->getDoctrine()->getManager()->flush();
 
-        return new JsonResponse();
+        return new JsonResponse(null, 200);
     }
 
     /**
@@ -174,17 +182,25 @@ class GameCollectionController extends AbstractController
      * @ParamConverter("game", options={"id" = "game_id"})
      * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
+     * @param Request $request
      * @param GameCollection $collection
      * @param Game $game
      *
      * @return Response
      */
-    public function remove(GameCollection $collection, Game $game): Response
-    {
+    public function remove(
+      Request $request,
+      GameCollection $collection,
+      Game $game
+    ): Response {
+        if (!$request->isXmlHttpRequest()) {
+            return new JsonResponse(null, 403);
+        }
+
         $collection->removeGame($game);
 
         $this->getDoctrine()->getManager()->flush();
 
-        return new JsonResponse();
+        return new JsonResponse(null, 200);
     }
 }
