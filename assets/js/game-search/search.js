@@ -5,31 +5,44 @@ $(".js-search-btn").on("click", getGames);
 $("body").on("click", ".js-load-btn", loadMore);
 
 function getGames() {
-    const box = $(".js-search-box");
-
-    if (box.val().length > 3) {
+    if (ui.box.val().length > 3) {
         $.ajax({
-            url: `${ui.baseUrl}search/${box.val()}`,
-            dataType: "json"
-        }).done((games, status, xhr) => {
-                ui.changeMainHeading(box.val());
-                ui.showGames(games, true);
-                ui.showLoadButton(xhr);
+            url: `${ui.baseUrl}search/${ui.box.val()}`,
+            dataType: "json",
+            beforeSend: () => {
+                ui.showSpinner();
+                ui.container.hide();
             }
-        ).fail(xhr => ui.showLoadButton(xhr));
+        })
+            .done((games, status, xhr) => {
+                if (games.length === 0) {
+                    ui.showAlert("Nothing matches your search ┐(͠≖ ͜ʖ͠≖)┌");
+                } else {
+                    ui.changeMainHeading(ui.box.val());
+                    ui.showGames(games, true);
+                    ui.showLoadButton(xhr);
+                }
+            })
+            .fail(xhr => ui.showLoadButton(xhr))
+            .always(() => {
+                ui.clearSpinner();
+                ui.container.show();
+            });
     } else {
-        ui.showAlert();
+        ui.showAlert("Your input must be at least 4 characters!");
     }
 }
 
 function loadMore() {
-    const box = $(".js-search-box");
-
     $.ajax({
-        url: `${ui.baseUrl}search/${box.val()}?offset=${ui.offset}`,
-        dataType: "json"
-    }).done((games, status, xhr) => {
-        ui.showGames(games);
-        ui.showLoadButton(xhr);
-    }).fail(xhr => ui.showLoadButton(xhr));
+        url: `${ui.baseUrl}search/${ui.box.val()}?offset=${ui.offset}`,
+        dataType: "json",
+        beforeSend: () => ui.showSpinner()
+    })
+        .done((games, status, xhr) => {
+            ui.showGames(games);
+            ui.showLoadButton(xhr, games.length);
+        })
+        .fail(xhr => ui.showLoadButton(xhr))
+        .always(() => ui.clearSpinner());
 }

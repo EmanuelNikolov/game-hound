@@ -1,36 +1,46 @@
 class UI {
     constructor() {
         this.container = $(".js-card-container");
+        this.box = $(".js-search-box");
+        this.searchContainer = $(".js-search-container");
         this.mainHeading = $("h1");
+        this.loader = $(".loader");
         this.baseUrl = "http://127.0.0.1:8000/game/";
         this.offset = 0;
-        this.alert = $(".alert");
     }
 
     changeMainHeading(input) {
         this.mainHeading.text(`Results for ${input}`);
     }
 
-    showAlert() {
+    showAlert(message) {
         this.clearAlert();
 
-        this.alert.text("Your input must be at least 4 characters!").show();
+        const alert = `
+            <div class="alert alert-danger" role="alert">
+                ${message}
+            </div>
+        `;
+
+        $(alert).prependTo(this.searchContainer);
 
         setTimeout(() => {
-            this.alert.hide();
+            this.clearAlert();
         }, 3000);
     }
 
     clearAlert() {
-        if (this.alert) {
-            alert().remove();
+        const alert = $(".alert");
+
+        if (alert) {
+            alert.remove();
         }
     }
 
     showGames(games, firstCall = false) {
         const cards = games.map(game => {
             return (`
-                <div class="col-sm-6 col-md-5 col-lg-3 mx-auto mb-4">
+                <div class="col-sm-6 col-md-4 col-lg-2 px-lg-2 mx-auto mb-4">
                     <div class="card">
                         <a href="${this.baseUrl + game.slug}">
                             <img src="${this.generateImageUrl(game.cover)}" class="card-img-top">
@@ -50,7 +60,7 @@ class UI {
         this.container.append(cards);
     }
 
-    showLoadButton(xhr) {
+    showLoadButton(xhr, count = 1) {
         this.clearLoadButton();
 
         let load = ``;
@@ -58,21 +68,29 @@ class UI {
         if (xhr.status === 200) {
             this.offset = xhr.getResponseHeader("Offset");
 
-            load = `
+            if (count === 0) {
+                load = `
+                    <div class="alert alert-secondary js-load-btn" role="alert">
+                        That's all folks ( ͡° < ͡°)炎炎炎炎
+                    </div>
+                `;
+            } else {
+                load = `
                     <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn" 
                             type="button">
                             Load More Results
                     </button>
-            `;
+                `;
+            }
         } else {
             load = `
-                    <div class="alert alert-secondary" role="alert">
-                        No more results... ( ‾ ʖ̫ ‾)
+                    <div class="alert alert-secondary js-load-btn" role="alert">
+                        An error has occurred... ( ‾ ʖ̫ ‾)
                     </div>
             `;
         }
 
-        $(load).insertAfter(this.container);
+        $(load).insertAfter(this.loader.parent().parent());
     }
 
     clearLoadButton() {
@@ -83,13 +101,23 @@ class UI {
         }
     }
 
+    showSpinner() {
+        this.clearLoadButton();
+        this.loader.addClass("m-5").show();
+        $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+    }
+
+    clearSpinner() {
+        this.loader.removeClass("m-5").hide();
+    }
+
     generateImageUrl(cover) {
         let {cloudinary_id, url} = {...cover};
 
         if (cloudinary_id !== undefined) {
             let base = "https://images.igdb.com/igdb/image/upload/t_";
 
-            return `${base}cover_small/${cloudinary_id}.png`;
+            return `${base}cover_uniform/${cloudinary_id}.png`;
         }
 
         return url;

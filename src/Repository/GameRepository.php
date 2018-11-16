@@ -26,7 +26,7 @@ class GameRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('g')
           ->where('g.cover IS NOT NULL')
           ->orderBy('g.id', 'DESC')
-          ->setMaxResults(4)
+          ->setMaxResults(6)
           ->getQuery()
           ->getResult()
           ;

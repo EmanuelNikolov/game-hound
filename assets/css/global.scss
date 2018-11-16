@@ -5,3 +5,8 @@ $card-border-color: $card-bg;
 $card-border-radius: 20px;
 
 @import "~bootstrap/scss/bootstrap";
+@import "loader.css";
+
+.card-title {
+  font-size: 19px;
+}

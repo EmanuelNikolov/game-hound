@@ -68,11 +68,12 @@ class GameController extends AbstractController
             return new JsonResponse(null, 403);
         }
 
-        $pageLimit = 8;
+        $pageLimit = 6;
 
         $this->builder
           ->setSearch($name)
           ->setFields('name,slug,cover')
+          ->setFilters('[version_parent][not_exists]', '1')
           ->setLimit($pageLimit);
 
         if ($request->query->has('offset')) {
@@ -110,7 +111,7 @@ class GameController extends AbstractController
 
         if (!$game) {
             $this->builder
-              ->setSearch($slug)
+              ->setFilters('[slug][eq]', $slug)
               ->setFields('name,slug,summary,first_release_date,cover')
               ->setLimit(1);
 
