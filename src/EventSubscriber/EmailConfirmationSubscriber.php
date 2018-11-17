@@ -51,6 +51,9 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
         $emailConfirmToken = $this->tokenCreator->createToken();
         $user->setConfirmationToken($emailConfirmToken);
 
+        $dto = (new \DateTimeImmutable())->add(new \DateInterval('P1D'));
+        $user->setConfirmationTokenRequestedAt($dto);
+
         $this->mailer->sendEmailConfirmationMessage($user);
     }
 
@@ -58,6 +61,7 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
     {
         $user = $event->getUser();
         $user->setConfirmationToken(null);
+        $user->setConfirmationTokenRequestedAt(null);
         $user->setRoles([User::ROLE_USER_CONFIRMED]);
     }
 }

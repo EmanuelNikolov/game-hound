@@ -72,7 +72,7 @@ class UI {
                 message = "That's all folks ( ͡° < ͡°)炎炎炎炎";
                 type = "btn-default"
             } else {
-                message = "Load More Results";
+                message = "Load More Games";
                 type = "btn-info";
             }
         } else {

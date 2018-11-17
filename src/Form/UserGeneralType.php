@@ -10,9 +10,12 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserRegisterType extends AbstractType
+class UserGeneralType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -20,6 +23,7 @@ class UserRegisterType extends AbstractType
         $builder
           ->add('email', EmailType::class, [
             'help' => 'A verification link will be sent to this email',
+            'required' => false,
           ])
           ->add('username', TextType::class, [
             'help' => 'Your username must be between 5 and 25 characters',
@@ -35,17 +39,43 @@ class UserRegisterType extends AbstractType
               'label' => 'Repeat Password',
               'help' => 'Passwords must match',
             ],
+            'required' => false,
           ])
           ->add('signup', SubmitType::class, [
             'label' => 'Sign Up',
             'attr' => ['class' => 'btn-primary'],
           ]);
+
+        $builder->addEventListener(
+          FormEvents::PRE_SET_DATA,
+          function (FormEvent $event) {
+              $user = $event->getData();
+              $form = $event->getForm();
+
+              if (null !== $user->getId()) {
+                  $form->remove('username');
+                  $form->remove('signup');
+                  $form->add('submit', SubmitType::class, [
+                    'label' => 'Edit Profile',
+                    'attr' => ['class' => 'btn-primary'],
+                  ]);
+              }
+          });
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
           'data_class' => User::class,
+          'validation_groups' => function (FormInterface $form) {
+              $user = $form->getData();
+
+              if (null === $user->getId()) {
+                  return ['Default', 'edit'];
+              }
+
+              return ['edit'];
+          },
         ]);
     }
 }

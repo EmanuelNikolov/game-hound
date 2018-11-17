@@ -58,7 +58,7 @@ class Mailer implements MailerInterface
     {
         $templateName = $this->parameters['confirmation'];
         $confirmationURL = $this->router->generate('user_email_confirm', [
-          'token' => $user->getConfirmationToken(),
+          'confirmationToken' => $user->getConfirmationToken(),
         ]);
 
         $templateData = [
@@ -78,7 +78,7 @@ class Mailer implements MailerInterface
     {
         $templateName = $this->parameters['reset_password'];
         $resetPasswordURL = $this->router->generate('user_reset_password', [
-          'token' => $user->getConfirmationToken(),
+          'confirmationToken' => $user->getConfirmationToken(),
         ]);
 
         $templateData = [

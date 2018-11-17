@@ -52,8 +52,10 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     {
         $user = $event->getUser();
         $resetPasswordToken = $this->tokenCreator->createToken();
-        // TODO: put some expiration date on that password token
         $user->setConfirmationToken($resetPasswordToken);
+
+        $dto = (new \DateTimeImmutable())->add(new \DateInterval('P1D'));
+        $user->setConfirmationTokenRequestedAt($dto);
 
         $this->mailer->sendPasswordResetMessage($user);
     }

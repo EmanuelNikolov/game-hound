@@ -16,11 +16,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @UniqueEntity(
  *     "email",
- *     message="This email is already taken"
+ *     message="This email is already taken",
+ *     groups={"edit"}
  * )
  * @UniqueEntity(
  *     "username",
- *     message="This username is already taken"
+ *     message="This username is already taken",
+ *     groups={"edit"}
  * )
  */
 class User implements UserInterface, EquatableInterface
@@ -41,7 +43,8 @@ class User implements UserInterface, EquatableInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\Email(
      *     message = "'{{ value }}' is not a valid email.",
-     *     checkMX = true
+     *     checkMX = true,
+     *     groups={"edit"}
      * )
      */
     private $email;
@@ -71,7 +74,7 @@ class User implements UserInterface, EquatableInterface
      *      max = 50,
      *      minMessage = "Password must be at least {{ limit }} characters
      *   long", maxMessage = "Password cannot be longer than {{ limit }}
-     *   characters"
+     *   characters", groups={"edit"}
      * )
      */
     private $plainPassword;
@@ -192,31 +195,24 @@ class User implements UserInterface, EquatableInterface
       ?string $confirmationToken
     ): User {
         $this->confirmationToken = $confirmationToken;
-
-        if (null === $confirmationToken) {
-            $this->confirmationTokenRequestedAt = null;
-        } else {
-            $this->confirmationTokenRequestedAt = new \DateTimeImmutable();
-        }
-
         return $this;
     }
 
     /**
-     * @return null|string
+     * @return \DateTimeImmutable|null
      */
-    public function getConfirmationTokenRequestedAt(): ?string
+    public function getConfirmationTokenRequestedAt(): ?\DateTimeImmutable
     {
         return $this->confirmationTokenRequestedAt;
     }
 
     /**
-     * @param null|string $confirmationTokenRequestedAt
+     * @param \DateTimeImmutable|null $confirmationTokenRequestedAt
      *
      * @return User
      */
     public function setConfirmationTokenRequestedAt(
-      ?string $confirmationTokenRequestedAt
+      ?\DateTimeImmutable $confirmationTokenRequestedAt
     ): User {
         $this->confirmationTokenRequestedAt = $confirmationTokenRequestedAt;
         return $this;
@@ -262,7 +258,7 @@ class User implements UserInterface, EquatableInterface
     {
         $roles = $this->roles;
 
-        // guarantee every user at least has ROLE_USER
+        // guarantee every user at least has a role
         if (empty($roles)) {
             $roles[] = self::ROLE_USER_UNCONFIRMED;
         }

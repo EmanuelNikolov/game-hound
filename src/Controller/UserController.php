@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Event\UserEvent;
 use App\FlashMessage\UserMessage as Flash;
+use App\Form\UserGeneralType;
 use App\Form\UserNewPasswordType;
-use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,7 +64,7 @@ class UserController extends AbstractController
       UserPasswordEncoderInterface $encoder
     ): Response {
         $user = new User();
-        $form = $this->createForm(UserRegisterType::class, $user);
+        $form = $this->createForm(UserGeneralType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -102,7 +102,7 @@ class UserController extends AbstractController
      *     methods={"GET"}
      * )
      *
-     * @param \App\Entity\User $user
+     * @param User $user
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
@@ -131,13 +131,7 @@ class UserController extends AbstractController
 
         $this->addFlash('success', Flash::REGISTRATION_SUCCESS);
 
-        return $this->guardAuthenticatorHandler
-          ->authenticateUserAndHandleSuccess(
-            $user,
-            $request,
-            $this->userLoginAuthenticator,
-            'main'
-          );
+        return $this->render('user/show.html.twig', ['user' => $user]);
     }
 
     /**
@@ -187,7 +181,7 @@ class UserController extends AbstractController
      *     methods={"GET", "POST"}
      * )
      *
-     * @param \App\Entity\User $user
+     * @param User $user
      * @param Request $request
      *
      * @param UserPasswordEncoderInterface $encoder
@@ -254,12 +248,56 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/profile/edit", name="user_edit", methods={"GET|POST"})
+     */
+    public function update(
+      Request $request,
+      UserPasswordEncoderInterface $encoder
+    ): Response {
+        $user = $this->getUser();
+        $email = $user->getEmail();
+        $form = $this->createForm(UserGeneralType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($user->getEmail() !== $email) {
+                // Reset user roles.
+                $user->setRoles([User::ROLE_USER_UNCONFIRMED]);
+                $event = new UserEvent($user);
+                $this->eventDispatcher->dispatch(
+                  UserEvent::REGISTER_REQUEST,
+                  $event
+                );
+                $this->addFlash('success', Flash::class);
+            }
+
+            $plainPassword = $user->getPlainPassword();
+
+            if (null !== $plainPassword) {
+                $password = $encoder->encodePassword($user, $plainPassword);
+                $user->setPassword($password);
+                $this->addFlash('success', Flash::class);
+            }
+
+            $this->em->flush();
+
+            return $this->redirectToRoute('user_show', [
+              'username' => $user->getUsername(),
+            ]);
+        }
+
+        return $this->render('user/edit.html.twig', [
+          'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @Route(
      *     "/{username}/collections",
      *     name="user_show_game_collections",
      *     methods="GET"
      * )
-     * @param \App\Entity\User $user
+     * @param User $user
      *
      * @return Response
      */
