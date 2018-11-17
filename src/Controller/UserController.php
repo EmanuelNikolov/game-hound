@@ -9,6 +9,7 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserRegisterType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -21,6 +22,8 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 class UserController extends AbstractController
 {
 
+    private $em;
+
     private $guardAuthenticatorHandler;
 
     private $userLoginAuthenticator;
@@ -30,15 +33,18 @@ class UserController extends AbstractController
     /**
      * UserController constructor.
      *
+     * @param \Doctrine\ORM\EntityManagerInterface $em
      * @param GuardAuthenticatorHandler $guardAuthenticatorHandler
      * @param UserLoginAuthenticator $userLoginAuthenticator
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
+      EntityManagerInterface $em,
       GuardAuthenticatorHandler $guardAuthenticatorHandler,
       UserLoginAuthenticator $userLoginAuthenticator,
       EventDispatcherInterface $eventDispatcher
     ) {
+        $this->em = $em;
         $this->guardAuthenticatorHandler = $guardAuthenticatorHandler;
         $this->userLoginAuthenticator = $userLoginAuthenticator;
         $this->eventDispatcher = $eventDispatcher;
@@ -48,30 +54,30 @@ class UserController extends AbstractController
      * @Route("/register", name="user_register", methods={"GET", "POST"})
      *
      * @param Request $request
-     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     *
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
      *
      * @return Response
      */
     public function register(
       Request $request,
-      UserPasswordEncoderInterface $userPasswordEncoder
+      UserPasswordEncoderInterface $encoder
     ): Response {
         $user = new User();
         $form = $this->createForm(UserRegisterType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $encodedPassword = $userPasswordEncoder->encodePassword($user,
-              $user->getPlainPassword());
+            $encodedPassword = $encoder
+              ->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($encodedPassword);
 
             $event = new UserEvent($user);
-            $this->eventDispatcher->dispatch(UserEvent::REGISTER_REQUEST,
-              $event);
+            $this->eventDispatcher
+              ->dispatch(UserEvent::REGISTER_REQUEST, $event);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+            $this->em->persist($user);
+            $this->em->flush();
 
             $this->addFlash('success', Flash::REGISTRATION_CONFIRMED);
 
@@ -91,43 +97,37 @@ class UserController extends AbstractController
 
     /**
      * @Route(
-     *     "/register/confirm/{token}",
+     *     "/register/confirm/{confirmationToken}",
      *     name="user_email_confirm",
      *     methods={"GET"}
      * )
      *
-     * @param string $token
+     * @param \App\Entity\User $user
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
     public function registerConfirm(
-      string $token,
+      User $user,
       Request $request
     ): Response {
-        $em = $this->getDoctrine()->getManager();
-
-        /** @var User $user */
-        $user = $em->getRepository(User::class)
-          ->findOneByConfirmationToken($token);
-
-        if (!$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
+        if (!$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', Flash::INVALID_TOKEN);
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('home_index');
         }
 
         if (!$user->isEqualTo($this->getUser())) {
             $this->addFlash('danger', Flash::EMAIL_CONFIRM_USER_DIFF);
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('home_index');
         }
 
         $event = new UserEvent($user);
         $this->eventDispatcher->dispatch(UserEvent::REGISTER_CONFIRM, $event);
 
-        $em->flush();
+        $this->em->flush();
 
         $this->addFlash('success', Flash::REGISTRATION_SUCCESS);
 
@@ -158,8 +158,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository(User::class)
+            $user = $this->em->getRepository(User::class)
               ->findOneByEmailOrUsername($formData['login_credential']);
 
             if (!$user) {
@@ -169,11 +168,10 @@ class UserController extends AbstractController
                 $this->eventDispatcher
                   ->dispatch(UserEvent::RESET_PASSWORD_REQUEST, $event);
 
-                $em->flush();
+                $this->em->flush();
 
                 $this->addFlash('success',
                   Flash::RESET_PASSWORD_REQUEST_SUCCESS);
-
             }
         }
 
@@ -184,12 +182,12 @@ class UserController extends AbstractController
 
     /**
      * @Route(
-     *     "/reset_password/confirm/{token}",
+     *     "/reset_password/confirm/{confirmationToken}",
      *     name="reset_password_confirm",
      *     methods={"GET", "POST"}
      * )
      *
-     * @param string $token
+     * @param \App\Entity\User $user
      * @param Request $request
      *
      * @param UserPasswordEncoderInterface $encoder
@@ -198,16 +196,11 @@ class UserController extends AbstractController
      * @throws \Exception
      */
     public function resetPasswordConfirm(
-      string $token,
+      User $user,
       Request $request,
       UserPasswordEncoderInterface $encoder
     ): Response {
-        $em = $this->getDoctrine()->getManager();
-        /** @var User $user */
-        $user = $em->getRepository(User::class)
-          ->findOneByConfirmationToken($token);
-
-        if (!$token || !$user instanceof User || !$user->isConfirmationTokenNonExpired()) {
+        if (!$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', Flash::INVALID_TOKEN);
 
             return $this->redirectToRoute('user_reset_password');
@@ -230,7 +223,7 @@ class UserController extends AbstractController
             $plainPassword = $form->get('password')->getData();
             $password = $encoder->encodePassword($user, $plainPassword);
             $user->setPassword($password);
-            $em->flush();
+            $this->em->flush();
 
             $this->addFlash('success', Flash::RESET_PASSWORD_SUCCESS);
 
@@ -273,7 +266,7 @@ class UserController extends AbstractController
     public function showGameCollections(User $user): Response
     {
         return $this->render('user/show_game_collections.html.twig', [
-          'user' => $user
+          'user' => $user,
         ]);
     }
 }

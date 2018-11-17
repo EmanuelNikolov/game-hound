@@ -50,6 +50,4 @@ class UserEvent extends Event
         $this->user = $user;
         return $this;
     }
-
-
 }

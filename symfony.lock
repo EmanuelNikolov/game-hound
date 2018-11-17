@@ -78,7 +78,13 @@
         "version": "2.1.5"
     },
     "emanuilnikolov/igdb-api-bundle": {
-        "version": "v1.0.0"
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "7fd07255f1618b72766f7eaa4e35bab2712f5b4e"
+        }
     },
     "facebook/webdriver": {
         "version": "1.6.0"

@@ -41,7 +41,7 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
     {
         return [
           UserEvent::REGISTER_REQUEST => 'handleRegisterRequest',
-            UserEvent::REGISTER_CONFIRM => 'handleRegisterConfirm'
+          UserEvent::REGISTER_CONFIRM => 'handleRegisterConfirm',
         ];
     }
 

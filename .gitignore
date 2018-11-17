@@ -16,7 +16,6 @@
 ###< symfony/web-server-bundle ###
 
 .idea
-/config/packages/en_igdb_api.yaml
 
 ###> symfony/webpack-encore-pack ###
 /node_modules/

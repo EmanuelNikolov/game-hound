@@ -5,7 +5,7 @@ class UI {
         this.searchContainer = $(".js-search-container");
         this.mainHeading = $("h1");
         this.loader = $(".loader");
-        this.baseUrl = "http://127.0.0.1:8000/game/";
+        this.baseUrl = "/game/";
         this.offset = 0;
     }
 
@@ -63,34 +63,31 @@ class UI {
     showLoadButton(xhr, count = 1) {
         this.clearLoadButton();
 
-        let load = ``;
+        let message, type;
 
         if (xhr.status === 200) {
             this.offset = xhr.getResponseHeader("Offset");
 
             if (count === 0) {
-                load = `
-                    <div class="alert alert-secondary js-load-btn" role="alert">
-                        That's all folks ( ͡° < ͡°)炎炎炎炎
-                    </div>
-                `;
+                message = "That's all folks ( ͡° < ͡°)炎炎炎炎";
+                type = "btn-default"
             } else {
-                load = `
-                    <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn" 
-                            type="button">
-                            Load More Results
-                    </button>
-                `;
+                message = "Load More Results";
+                type = "btn-info";
             }
         } else {
-            load = `
-                    <div class="alert alert-secondary js-load-btn" role="alert">
-                        An error has occurred... ( ‾ ʖ̫ ‾)
-                    </div>
-            `;
+            message = "An error has occurred... ( ‾ ʖ̫ ‾)";
+            type = "btn-default";
         }
 
-        $(load).insertAfter(this.loader.parent().parent());
+        const loadBtn = `
+            <button class="btn btn-block btn-lg ${type} mb-4 js-load-btn" 
+                    type="button">
+                    ${message}
+            </button>
+        `;
+
+        $(loadBtn).insertAfter(this.loader.parent());
     }
 
     clearLoadButton() {

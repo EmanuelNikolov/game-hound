@@ -62,5 +62,6 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     {
         $user = $event->getUser();
         $user->setConfirmationToken(null);
+        $user->setConfirmationTokenRequestedAt(null);
     }
 }

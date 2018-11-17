@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="row">
-        <div class="col-7 mx-auto mt-5 js-search-container">
+        <div class="col-xs-12 col-lg-8 mx-auto mt-4 js-search-container">
             <div class="input-group ">
                 <input type="text" class="form-control js-search-box" placeholder="Enter a game's name, edition etc."
                        aria-label="Search">
@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <h1 class="text-center my-4">Recently added games</h1>
+    <h1 class="text-center my-5">Recently added games</h1>
 
     <div class="row js-card-container">
         {% for game in games %}
@@ -33,7 +33,7 @@
         {% endfor %}
     </div>
 
-    <div class="row js-load-container">
+    <div class="row px-3 px-lg-2 js-load-container">
         <div class="mx-auto">
             <div class="loader"></div>
         </div>

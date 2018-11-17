@@ -11,7 +11,7 @@ class HomeController extends AbstractController
 {
 
     /**
-     * @Route("/", name="home", methods={"GET"})
+     * @Route("/", name="home_index", methods={"GET"})
      *
      * @param \App\Repository\GameRepository $repo
      *
