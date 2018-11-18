@@ -3,42 +3,47 @@
 {% block title %}{{ game_collection.name }}{% endblock %}
 
 {% block body %}
-    <h1>{{ game_collection.name }}</h1>
 
-    {% set username, granted = game_collection.user.username, is_granted('GAME_COLLECTION_EDIT', game_collection) %}
-    <h2>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h2>
+    <div class="row">
+        <div class="col-6 mx-auto">
+            <h1>{{ game_collection.name }}</h1>
 
-    <table class="table">
-        <tbody>
-        {% for game in game_collection.games %}
-            {# game \App\Entity\Game #}
-            <tr>
-                <td>{{ game.coverUrl('cover_small') }}</td>
-                <td><a href="{{ path('game_show', {'slug': game.slug}) }}">{{ game.name }}</a></td>
+            {% set username, granted = game_collection.user.username, is_granted('GAME_COLLECTION_EDIT', game_collection) %}
+            <h5>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h5>
+
+            <div class="actions my-4">
                 {% if granted %}
-                    <td>
-                        <a class="btn btn-primary btn-game-remove"
-                           href="{{ path('game_collection_remove', {'id': game.id}) }}"
-                           data-csrf="{{ csrf_token('dete' ~ game.id) }}">
-                            Remove
-                        </a>
-                    </td>
+                    <a class="btn btn-primary" href="{{ path('home_index') }}">Add a game</a>
+                    {{ include('game_collection/_delete_form.html.twig') }}
                 {% endif %}
-            </tr>
-        {% else %}
-            <tr>
-                <td>No games added yet.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </div>
 
-    {% if granted %}
-        <div class="actions">
-            <a class="btn btn-primary" href="#">Add a game</a>
-            {{ include('game_collection/_delete_form.html.twig') }}
+            <table class="table table-dark">
+                <tbody>
+                {% for game in game_collection.games %}
+                    {# game \App\Entity\Game #}
+                    <tr>
+                        <td>{{ game.coverUrl('cover_small') }}</td>
+                        <td><a href="{{ path('game_show', {'slug': game.slug}) }}">{{ game.name }}</a></td>
+                        {% if granted %}
+                            <td>
+                                <a class="btn btn-primary btn-game-remove"
+                                   href="{{ path('game_collection_remove', {'id': game.id}) }}"
+                                   data-csrf="{{ csrf_token('delete' ~ game.id) }}">
+                                    Remove
+                                </a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td>No games added yet.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-    {% endif %}
+    </div>
 {% endblock %}
 
 {% block javascripts %}

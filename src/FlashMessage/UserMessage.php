@@ -21,4 +21,8 @@ abstract class UserMessage
     public const RESET_PASSWORD_REQUEST_SUCCESS = "Wooho! A password reset link was sent to your email! ヽ༼ຈل͜ຈ༽ﾉ";
 
     public const RESET_PASSWORD_FAIL = "You have to verify your email before you can reset your password! ( ͡ಠ ʖ̯ ͡ಠ)";
+
+    public const EMAIL_CHANGE_REQUESTED = "A verification link was sent to your email (つ ♡ ͜ʖ ♡)つ";
+
+    public const PASSWORD_CHANGED = "Your password was successfully updated! ヽ༼ຈل͜ຈ༽ﾉ";
 }

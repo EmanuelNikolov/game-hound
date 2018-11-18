@@ -103,15 +103,12 @@ class UserController extends AbstractController
      * )
      *
      * @param User $user
-     * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
-    public function registerConfirm(
-      User $user,
-      Request $request
-    ): Response {
+    public function registerConfirm(User $user): Response
+    {
         if (!$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', Flash::INVALID_TOKEN);
 
@@ -263,12 +260,14 @@ class UserController extends AbstractController
             if ($user->getEmail() !== $email) {
                 // Reset user roles.
                 $user->setRoles([User::ROLE_USER_UNCONFIRMED]);
+
                 $event = new UserEvent($user);
                 $this->eventDispatcher->dispatch(
                   UserEvent::REGISTER_REQUEST,
                   $event
                 );
-                $this->addFlash('success', Flash::class);
+
+                $this->addFlash('success', Flash::EMAIL_CHANGE_REQUESTED);
             }
 
             $plainPassword = $user->getPlainPassword();
@@ -276,7 +275,8 @@ class UserController extends AbstractController
             if (null !== $plainPassword) {
                 $password = $encoder->encodePassword($user, $plainPassword);
                 $user->setPassword($password);
-                $this->addFlash('success', Flash::class);
+
+                $this->addFlash('success', Flash::PASSWORD_CHANGED);
             }
 
             $this->em->flush();
@@ -288,23 +288,6 @@ class UserController extends AbstractController
 
         return $this->render('user/edit.html.twig', [
           'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route(
-     *     "/{username}/collections",
-     *     name="user_show_game_collections",
-     *     methods="GET"
-     * )
-     * @param User $user
-     *
-     * @return Response
-     */
-    public function showGameCollections(User $user): Response
-    {
-        return $this->render('user/show_game_collections.html.twig', [
-          'user' => $user,
         ]);
     }
 }

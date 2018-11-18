@@ -45,6 +45,7 @@ Encore
     // uncomment if you're having problems with a jQuery plugin
     .autoProvidejQuery()
     .splitEntryChunks()
+    .enableSingleRuntimeChunk()
 ;
 
 module.exports = Encore.getWebpackConfig();

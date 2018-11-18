@@ -28,7 +28,7 @@ class GameCollectionController extends AbstractController
     public function latest(CollectionRepository $collectionRepository): Response
     {
         return $this->render('game_collection/index.html.twig', [
-          'game_collections' => $collectionRepository->findAll(),
+          'game_collections' => $collectionRepository->findBy([], null, 10),
         ]);
     }
 
@@ -55,8 +55,8 @@ class GameCollectionController extends AbstractController
             return $this->redirectToRoute('game_collection_index');
         }
 
-        return $this->render('game_collection/new.html.twig', [
-          'form' => $form->createView(),
+        return $this->render('user/show.html.twig', [
+          'user' => $gameCollection->getUser(),
         ]);
     }
 
@@ -137,7 +137,7 @@ class GameCollectionController extends AbstractController
             $this->addFlash('success', Flash::COLLECTION_DELETED);
         }
 
-        return $this->redirectToRoute('user_show_game_collections', [
+        return $this->redirectToRoute('user_show', [
           'username' => $collection->getUser()->getUsername(),
         ]);
     }

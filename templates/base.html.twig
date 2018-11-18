@@ -12,7 +12,7 @@
     {% block navbar %}
         {% set route = app.request.get('_route') %}
 
-        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark mb-4">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="{{ path('home_index') }}">Game Hound</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
                     aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,12 @@
         </nav>
     {% endblock %}
 
+    <div class="col-6 mx-auto text-center py-4 js-alert-container">
+        {{ include('default/session_flash_bag.html.twig') }}
+    </div>
+
     <div class="container-fluid text-center">
+
         {% block body %}{% endblock %}
     </div>
 

@@ -1,14 +1,29 @@
 <div class="collections-container">
-    {% for game_collection in game_collections %}
-        <div class="collection">
-            <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
-                {{ game_collection.name }}
-            </a>
-            {% block delete_button %}{% endblock %}
-        </div>
-    {% else %}
-        <div>
-            <p>No collections added yet :(</p>
-        </div>
-    {% endfor %}
+
+    <table class="table table-dark">
+        <thead>
+        <tr>
+            <td>Collections</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for game_collection in game_collections %}
+            <tr>
+                <td>
+                    <a href="{{ path('game_collection_show', {'id': game_collection.id}) }}">
+                        {{ game_collection.name }}
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td>No collections added yet :(</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="collection">
+
+    </div>
+
 </div>

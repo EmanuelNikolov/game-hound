@@ -2,7 +2,7 @@ class UI {
     constructor() {
         this.container = $(".js-card-container");
         this.box = $(".js-search-box");
-        this.searchContainer = $(".js-search-container");
+        this.alertContainer = $(".js-alert-container");
         this.mainHeading = $("h1");
         this.loader = $(".loader");
         this.baseUrl = "/game/";
@@ -17,12 +17,15 @@ class UI {
         this.clearAlert();
 
         const alert = `
-            <div class="alert alert-danger" role="alert">
-                ${message}
-            </div>
+            <span class="alert alert-danger d-block mb-0">
+                <span class="d-block">
+                    <span class="form-error-icon badge badge-danger text-uppercase">ERROR</span>
+                    <span class="form-error-message">${message}</span>
+                </span>
+            </span>
         `;
 
-        $(alert).prependTo(this.searchContainer);
+        $(alert).prependTo(this.alertContainer);
 
         setTimeout(() => {
             this.clearAlert();
