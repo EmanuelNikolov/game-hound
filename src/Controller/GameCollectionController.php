@@ -52,11 +52,13 @@ class GameCollectionController extends AbstractController
 
             $this->addFlash('success', Flash::COLLECTION_CREATED);
 
-            return $this->redirectToRoute('game_collection_index');
+            return $this->redirectToRoute('user_show', [
+              'username' => $gameCollection->getUser()->getUsername()
+            ]);
         }
 
-        return $this->render('user/show.html.twig', [
-          'user' => $gameCollection->getUser(),
+        return $this->render('game_collection/new.html.twig', [
+          'form' => $form->createView(),
         ]);
     }
 
@@ -162,15 +164,13 @@ class GameCollectionController extends AbstractController
       GameCollection $collection,
       Game $game
     ): Response {
-        if (!$request->isXmlHttpRequest()) {
-            return new JsonResponse(null, 403);
-        }
-
         $collection->addGame($game);
 
         $this->getDoctrine()->getManager()->flush();
 
-        return new JsonResponse(null, 200);
+        return $this->redirectToRoute('game_collection_show', [
+          'id' => $collection->getId(),
+        ]);
     }
 
     /**

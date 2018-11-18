@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Game;
 use App\Entity\User;
 use App\Event\UserEvent;
 use App\FlashMessage\UserMessage as Flash;
@@ -242,6 +243,23 @@ class UserController extends AbstractController
     public function show(User $user): Response
     {
         return $this->render('user/show.html.twig', ['user' => $user]);
+    }
+
+    /**
+     * @Route(
+     *     "/profile/collections/{id}",
+     *     name="user_show_collections",
+     *     methods={"GET"}
+     * )
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function showCollections(Game $game): Response
+    {
+        return $this->render('user/collections.html.twig', [
+          'game_collections' => $this->getUser()->getGameCollections(),
+          'game' => $game,
+        ]);
     }
 
     /**

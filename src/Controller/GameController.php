@@ -107,7 +107,7 @@ class GameController extends AbstractController
      */
     public function show(string $slug, EntityManagerInterface $em): Response
     {
-        $game = $em->getRepository(Game::class)->findOneBy(['slug' => $slug]);
+        $game = $em->getRepository(Game::class)->findOneBy(['slug' => trim($slug)]);
 
         if (!$game) {
             $this->builder

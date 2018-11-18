@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Add {{ game.name }} to a collection</h1>
+    {% embed 'game_collection/_list.html.twig' %}
+        {% block game_collection_link %}
+            <form action="{{ path('game_collection_add', {'id': game_collection.id, 'game_id': game.id}) }}"
+                  method="post">
+                <button type="submit" class="btn btn-link">{{ game_collection.name }}</button>
+            </form>
+        {% endblock %}
+
+        {% block _list_empty %}
+            <td>You don't have any collections yet :(</td>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

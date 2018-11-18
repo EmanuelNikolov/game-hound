@@ -10,8 +10,13 @@ $card-border-radius: 20px;
 $text-muted: #c3c0bb;
 $body-color: #e8e5e0;
 
+// Table
 $table-dark-bg: #101012;
 $table-dark-color: $body-color;
+
+$modal-content-bg: $body-bg;
+$modal-header-border-color: $body-bg;
+$modal-footer-border-color: $body-bg;
 
 @import "~bootstrap/scss/bootstrap";
 @import "loader.css";

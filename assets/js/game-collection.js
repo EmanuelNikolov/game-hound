@@ -1,26 +1,37 @@
-document.querySelector('.btn-game-remove').addEventListener('click', e => {
+import {ui} from './game-search/search-ui';
+
+$(".table").on("click", ".btn-game-remove", (e) => {
     if (confirm(`Are you sure you want to delete this collection?`)) {
         const delBtn = e.target;
 
         fetch(delBtn.href, {
             method: "DELETE",
             body: `token=${delBtn.dataset.csrf}`,
-            headers: {"Content-Type": "application/x-www-form-urlencoded"}
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest"
+            }
         })
             .then(response => {
                 if (!response.ok) {
                     throw Error();
                 }
 
-                delBtn.parentElement.remove();
+                delBtn.parentElement.parentElement.remove();
             })
-            .catch(() => {
-                const message = document.createElement('span');
-                message.className = 'alert alert-danger d-block';
-                message.appendChild(document.createTextNode("An error occured when trying to delete the game!"));
-                delBtn.parentElement.insertBefore(message, delBtn.parentElement.firstChild);
+            .catch((e) => {
+                const alert = `
+                    <span class="alert alert-danger d-block mb-0">
+                        <span class="d-block">
+                            <span class="form-error-icon badge badge-danger text-uppercase">ERROR</span>
+                            <span class="form-error-message">An error occurred while trying to delete the game</span>
+                        </span>
+                    </span>
+                `;
 
-                setTimeout(() => message.remove(), 3000);
+                $(alert).prependTo(ui.alertContainer);
+
+                setTimeout(() => alert.remove(), 3000);
             });
     }
 

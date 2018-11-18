@@ -1,7 +1,7 @@
 import {ui} from './search-ui';
 
 ui.box.on("keypress", (e) => {
-    if (e.which == 13) {
+    if (e.which === 13) {
         getGames();
     }
 });
