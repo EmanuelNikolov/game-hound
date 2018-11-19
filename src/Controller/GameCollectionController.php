@@ -6,7 +6,7 @@ use App\Entity\Game;
 use App\Entity\GameCollection;
 use App\FlashMessage\GameCollectionMessage as Flash;
 use App\Form\GameCollectionType;
-use App\Repository\CollectionRepository;
+use App\Repository\GameCollectionRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,12 +21,12 @@ class GameCollectionController extends AbstractController
     /**
      * @Route("/collections", name="game_collection_index", methods="GET")
      *
-     * @param CollectionRepository $collectionRepository
+     * @param GameCollectionRepository $collectionRepository
      *
      * @return Response
      */
-    public function latest(CollectionRepository $collectionRepository): Response
-    {
+    public function latest(GameCollectionRepository $collectionRepository
+    ): Response {
         return $this->render('game_collection/index.html.twig', [
           'game_collections' => $collectionRepository->findBy([], null, 10),
         ]);
@@ -53,7 +53,7 @@ class GameCollectionController extends AbstractController
             $this->addFlash('success', Flash::COLLECTION_CREATED);
 
             return $this->redirectToRoute('user_show', [
-              'username' => $gameCollection->getUser()->getUsername()
+              'username' => $gameCollection->getUser()->getUsername(),
             ]);
         }
 
@@ -65,14 +65,38 @@ class GameCollectionController extends AbstractController
     /**
      * @Route("/collection/{id}", name="game_collection_show", methods="GET")
      *
-     * @param GameCollection $collection
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \App\Entity\GameCollection $collection
      *
      * @return Response
      */
-    public function show(GameCollection $collection): Response
-    {
+    public function show(
+      Request $request,
+      GameCollection $collection
+    ): Response {
+        $offset = 0;
+        $pageLimit = 4;
+
+        if ($request->isXmlHttpRequest() && $request->query->has('offset')) {
+            $offset = $request->query->get('offset') + $pageLimit;
+            $games = $collection->getPaginatedGames($offset, $pageLimit);
+            $gamesArr = [];
+
+            foreach ($games as $game) {
+                $gamesArr[] = [
+                  'name' => $game->getName(),
+                  'slug' => $game->getSlug(),
+                  'cover' => ['cloudinary_id' => $game->getCover()],
+                ];
+            }
+
+            return new JsonResponse($gamesArr);
+        }
+
         return $this->render('game_collection/show.html.twig', [
           'game_collection' => $collection,
+          'offset' => $offset,
+          'page_limit' => $pageLimit,
         ]);
     }
 
@@ -147,20 +171,18 @@ class GameCollectionController extends AbstractController
     /**
      * @Route(
      *     "/collection/{id}/add/{game_id}",
-     *     name="game_collection_add",
-     *     methods="POST"
+     *     name="game_collection_add_game",
+     *     methods="PUT"
      * )
      * @ParamConverter("game", options={"id" = "game_id"})
      * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
      *
-     * @param Request $request
      * @param GameCollection $collection
      * @param Game $game
      *
      * @return Response
      */
-    public function add(
-      Request $request,
+    public function addGame(
       GameCollection $collection,
       Game $game
     ): Response {
@@ -176,7 +198,7 @@ class GameCollectionController extends AbstractController
     /**
      * @Route(
      *     "/collection/{id}/remove/{game_id}",
-     *     name="game_collection_remove",
+     *     name="game_collection_remove_game",
      *     methods="DELETE"
      * )
      * @ParamConverter("game", options={"id" = "game_id"})
@@ -188,7 +210,7 @@ class GameCollectionController extends AbstractController
      *
      * @return Response
      */
-    public function remove(
+    public function removeGame(
       Request $request,
       GameCollection $collection,
       Game $game

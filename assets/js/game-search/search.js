@@ -1,13 +1,12 @@
 import {ui} from './search-ui';
 
+// Event Listeners
 ui.box.on("keypress", (e) => {
     if (e.which === 13) {
         getGames();
     }
 });
-
 $(".js-search-btn").on("click", getGames);
-
 $("body").on("click", ".js-load-btn", loadMore);
 
 function getGames() {

@@ -1,0 +1,25 @@
+<div class="row js-card-container">
+    {% for game in games %}
+        {# game \App\Entity\Game #}
+        <div class="col-sm-6 col-md-6 col-xl-3 mx-auto mb-4">
+            <div class="card">
+                <a href="{{ path('game_show', {'slug': game.slug}) }}">
+                    <img src="{{ game.coverUrl('cover_uniform') }}" class="card-img-top">
+                </a>
+                <div class="card-body">
+                    <p class="card-title text-truncate">{{ game.name }}</p>
+                    {% block buttons %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h4 class="mx-auto mt-5">No games added yet :(</h4>
+    {% endfor %}
+</div>
+
+<div class="row px-3 px-lg-3 js-load-container">
+    <div class="mx-auto">
+        <div class="loader"></div>
+    </div>
+    {% block load_button %}{% endblock %}
+</div>

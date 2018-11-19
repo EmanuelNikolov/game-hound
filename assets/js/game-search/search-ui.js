@@ -41,15 +41,28 @@ class UI {
     }
 
     showGames(games, firstCall = false) {
+        const deleteBtn =document.querySelector(".btn-game-remove");
+
         const cards = games.map(game => {
+            let imageUrl,
+                {cloudinary_id, url} = {...game.cover}
+            ;
+
+            if (cloudinary_id !== undefined) {
+                imageUrl = this.generateImageUrl(cloudinary_id);
+            } else {
+                imageUrl = this.generateImageUrl(url);
+            }
+
             return (`
-                <div class="col-sm-6 col-md-4 col-lg-2 px-lg-2 mx-auto mb-4">
+                <div class="col-sm-6 col-md-6 col-xl-3 mx-auto mb-4">
                     <div class="card">
                         <a href="${this.baseUrl + game.slug}">
-                            <img src="${this.generateImageUrl(game.cover)}" class="card-img-top">
+                            <img src="${imageUrl}" class="card-img-top">
                         </a>
                         <div class="card-body">
-                            <h5 class="card-title text-truncate">${game.name}</h5>
+                            <p class="card-title text-truncate">${game.name}</p>
+                            ${deleteBtn ? deleteBtn.outerHTML : ""}
                         </div>
                     </div>
                 </div>
@@ -63,13 +76,13 @@ class UI {
         this.container.append(cards);
     }
 
-    showLoadButton(xhr, count = 1) {
+    showLoadButton(xhr = {status: 200}, count = 4) {
         this.clearLoadButton();
 
         let message, type;
 
         if (xhr.status === 200) {
-            this.offset = xhr.getResponseHeader("Offset");
+            this.offset += count;
 
             if (count === 0) {
                 message = "That's all folks ( ͡° < ͡°)炎炎炎炎";
@@ -104,23 +117,15 @@ class UI {
     showSpinner() {
         this.clearLoadButton();
         this.loader.addClass("m-5").show();
-        $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+        $("html, body").animate({scrollTop: $(document).height()}, "slow");
     }
 
     clearSpinner() {
         this.loader.removeClass("m-5").hide();
     }
 
-    generateImageUrl(cover) {
-        let {cloudinary_id, url} = {...cover};
-
-        if (cloudinary_id !== undefined) {
-            let base = "https://images.igdb.com/igdb/image/upload/t_";
-
-            return `${base}cover_uniform/${cloudinary_id}.png`;
-        }
-
-        return url;
+    generateImageUrl(url) {
+        return `https://images.igdb.com/igdb/image/upload/t_cover_uniform/${url}.png`;
     }
 }
 

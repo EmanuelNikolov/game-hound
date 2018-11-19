@@ -4,6 +4,7 @@ namespace App\Entity;
 
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
@@ -25,11 +26,13 @@ class Game
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"general"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"general"})
      */
     private $slug;
 
@@ -46,6 +49,7 @@ class Game
     /**
      * @var []
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"general"})
      */
     private $cover;
 

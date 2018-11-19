@@ -3,15 +3,15 @@
 {% block title %}{{ game_collection.name }}{% endblock %}
 
 {% block body %}
+    {% set username, granted = game_collection.user.username, is_granted('GAME_COLLECTION_EDIT', game_collection) %}
 
     <div class="row">
         <div class="col-xs-12 col-lg-10 mx-auto">
             <h1>{{ game_collection.name }}</h1>
 
-            {% set username, granted = game_collection.user.username, is_granted('GAME_COLLECTION_EDIT', game_collection) %}
             <h5>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h5>
 
-            <div class="actions my-4">
+            <div class="actions my-3">
                 {% if granted %}
                     <a class="btn btn-primary m-1" href="{{ path('home_index') }}">Add a game</a>
                     <div class="m-1 d-inline-block">
@@ -20,42 +20,31 @@
                 {% endif %}
             </div>
 
-            <table class="table table-dark">
-                <tbody>
-                {% for game in game_collection.games %}
-                    {# game \App\Entity\Game #}
-                    <tr>
-                        <td class="align-middle">
-                            <img class="img-fluid rounded" src="{{ game.coverUrl('cover_small') }}">
-                        </td>
-                        <td class="align-middle">
-                            <a class="text-truncate h5"
-                               href="{{ path('game_show', {'slug': game.slug}) }}">
-                                {{ game.name }}
+            {% embed 'game/_list.html.twig' with {'games': game_collection.paginatedGames(offset, page_limit)} %}
+                {% block buttons %}
+                    {% if granted %}
+                            <a class="btn btn-primary btn-game-remove"
+                               href="{{ path('game_collection_remove_game', {'id': game_collection.id, 'game_id': game.id}) }}"
+                               data-csrf="{{ csrf_token('delete' ~ game.id) }}">
+                                Remove
                             </a>
-                        </td>
-                        {% if granted %}
-                            <td class="align-middle">
-                                <a class="btn btn-primary btn-game-remove"
-                                   href="{{ path('game_collection_remove', {'id': game_collection.id, 'game_id': game.id}) }}"
-                                   data-csrf="{{ csrf_token('delete' ~ game.id) }}">
-                                    Remove
-                                </a>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td>No games added yet.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    {% endif %}
+                {% endblock %}
+
+                {% block load_button %}
+                    {% if game_collection.games|length > page_limit %}
+                        <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn"
+                                type="button">
+                            Load More Games
+                        </button>
+                    {% endif %}
+                {% endblock %}
+            {% endembed %}
         </div>
     </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('build/js/collection.js') }}"></script>
+    {{ encore_entry_script_tags('js/collection') }}
 {% endblock %}

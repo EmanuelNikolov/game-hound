@@ -6,7 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "emanuilnikolov/igdb-api-bundle": "^1.0",
+        "emanuilnikolov/igdb-api-bundle": "dev-master",
         "guzzlehttp/guzzle": "^6.3",
         "sensio/framework-extra-bundle": "^5.1",
         "symfony/asset": "*",

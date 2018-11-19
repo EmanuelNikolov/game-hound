@@ -68,7 +68,7 @@ class GameController extends AbstractController
             return new JsonResponse(null, 403);
         }
 
-        $pageLimit = 6;
+        $pageLimit = 4;
 
         $this->builder
           ->setSearch($name)

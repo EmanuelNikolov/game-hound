@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9072e111a19a717f7d16c749c08faa79",
+    "content-hash": "3679d0394a7c27a13b327c3b7638bb3c",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1232,16 +1232,16 @@
         },
         {
             "name": "emanuilnikolov/igdb-api-bundle",
-            "version": "v1.0.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EmanuilNikolov/IgdbApiBundle.git",
-                "reference": "ff310907354abcc85a585f0aa9c90ef3ef33b6f1"
+                "reference": "a274aea9438208ae8d756eda8a07e867ec29d9cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EmanuilNikolov/IgdbApiBundle/zipball/ff310907354abcc85a585f0aa9c90ef3ef33b6f1",
-                "reference": "ff310907354abcc85a585f0aa9c90ef3ef33b6f1",
+                "url": "https://api.github.com/repos/EmanuilNikolov/IgdbApiBundle/zipball/a274aea9438208ae8d756eda8a07e867ec29d9cd",
+                "reference": "a274aea9438208ae8d756eda8a07e867ec29d9cd",
                 "shasum": ""
             },
             "require": {
@@ -1272,7 +1272,7 @@
                 }
             ],
             "description": "Symfony Wrapper for IGDB.com API.",
-            "time": "2018-10-25T10:37:18+00:00"
+            "time": "2018-11-15T22:02:58+00:00"
         },
         {
             "name": "fig/link-util",
@@ -6250,7 +6250,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "emanuilnikolov/igdb-api-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

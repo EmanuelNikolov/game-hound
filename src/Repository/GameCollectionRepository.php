@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\GameCollection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -12,16 +13,26 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method GameCollection[]    findAll()
  * @method GameCollection[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CollectionRepository extends ServiceEntityRepository
+class GameCollectionRepository extends ServiceEntityRepository
 {
+
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, GameCollection::class);
     }
 
-//    /**
-//     * @return GameCollection[] Returns an array of GameCollection objects
-//     */
+    public static function createPaginatedGamesCriteria(
+      int $offset,
+      int $limit
+    ): Criteria {
+        return Criteria::create()
+          ->setFirstResult($offset)
+          ->setMaxResults($limit);
+    }
+
+    //    /**
+    //     * @return GameCollection[] Returns an array of GameCollection objects
+    //     */
     /*
     public function findByExampleField($value)
     {

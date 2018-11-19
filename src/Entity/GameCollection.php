@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Repository\GameCollectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CollectionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\GameCollectionRepository")
  * @ORM\Table(name="game_collections")
  */
 class GameCollection
@@ -85,6 +86,22 @@ class GameCollection
     public function getGames(): Collection
     {
         return $this->games;
+    }
+
+    public function setGames(Collection $collection): self
+    {
+        $this->games = $collection;
+        return $this;
+    }
+
+    public function getPaginatedGames(int $offset, int $limit): Collection
+    {
+        return $this->getGames()->matching(
+          GameCollectionRepository::createPaginatedGamesCriteria(
+            $offset,
+            $limit
+          )
+        );
     }
 
     public function addGame(Game $game): self

@@ -1,39 +1,43 @@
 import {ui} from './game-search/search-ui';
 
-$(".table").on("click", ".btn-game-remove", (e) => {
+// Event Listeners
+$("body").on("click", ".js-load-btn", loadMore);
+ui.container.on("click", ".btn-game-remove", deleteGame);
+
+function deleteGame(e) {
     if (confirm(`Are you sure you want to delete this collection?`)) {
         const delBtn = e.target;
 
-        fetch(delBtn.href, {
-            method: "DELETE",
-            body: `token=${delBtn.dataset.csrf}`,
+        $.ajax({
+            url: delBtn.href,
+            type: "DELETE",
+            data: `token=${delBtn.dataset.csrf}`,
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-Requested-With": "XMLHttpRequest"
+                "Content-Type": "application/x-www-form-urlencoded"
             }
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw Error();
-                }
-
-                delBtn.parentElement.parentElement.remove();
-            })
-            .catch((e) => {
-                const alert = `
-                    <span class="alert alert-danger d-block mb-0">
-                        <span class="d-block">
-                            <span class="form-error-icon badge badge-danger text-uppercase">ERROR</span>
-                            <span class="form-error-message">An error occurred while trying to delete the game</span>
-                        </span>
-                    </span>
-                `;
-
-                $(alert).prependTo(ui.alertContainer);
-
-                setTimeout(() => alert.remove(), 3000);
-            });
+            .done(() => $(delBtn).parentsUntil(ui.container).remove())
+            .fail(() => ui.showAlert("An error occurred while trying to delete the game."));
     }
 
     e.preventDefault();
-});
+}
+
+function loadMore() {
+    $.ajax({
+        url: `${window.location.href}?offset=${ui.offset}`,
+        dataType: "json",
+        beforeSend: () => ui.showSpinner()
+    })
+        .done((games, status, xhr) => {
+            if (games.length === ui.offset) {
+                ui.showLoadButton(xhr, games.length);
+            } else {
+                ui.showLoadButton(xhr, 0);
+            }
+
+            ui.showGames(games);
+        })
+        .fail(xhr => ui.showLoadButton(xhr))
+        .always(() => ui.clearSpinner());
+}
