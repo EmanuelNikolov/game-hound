@@ -19,6 +19,8 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class GameController extends AbstractController
 {
 
+    public const PAGE_LIMIT = 4;
+
     /**
      * @var IgdbWrapperInterface
      */
@@ -68,7 +70,7 @@ class GameController extends AbstractController
             return new JsonResponse(null, 403);
         }
 
-        $pageLimit = 4;
+        $pageLimit = self::PAGE_LIMIT;
 
         $this->builder
           ->setSearch($name)

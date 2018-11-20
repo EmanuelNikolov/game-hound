@@ -2,7 +2,7 @@
 
     <table class="table table-dark">
         <tbody>
-        {% for game_collection in game_collections %}
+        {% for game_collection in pagination %}
             <tr>
                 <td>
                     {% block game_collection_link %}
@@ -21,4 +21,5 @@
         {% endfor %}
         </tbody>
     </table>
+        {{ knp_pagination_render(pagination) }}
 </div>

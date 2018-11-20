@@ -14,9 +14,13 @@ $body-color: #e8e5e0;
 $table-dark-bg: #101012;
 $table-dark-color: $body-color;
 
-$modal-content-bg: $body-bg;
-$modal-header-border-color: $body-bg;
-$modal-footer-border-color: $body-bg;
+$pagination-bg: $table-dark-bg;
+$pagination-border-color: $table-dark-bg;
+$pagination-color: $body-color;
+$pagination-disabled-bg: $body-bg;
+$pagination-active-bg: $body-color;
+$pagination-active-border-color: $body-color;
+$pagination-active-color: $table-dark-bg;
 
 @import "~bootstrap/scss/bootstrap";
 @import "loader.css";

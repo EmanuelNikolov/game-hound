@@ -11,6 +11,7 @@ use App\Form\UserNewPasswordType;
 use App\Form\UserResetPasswordType;
 use App\Security\UserLoginAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormError;
@@ -236,13 +237,28 @@ class UserController extends AbstractController
     /**
      * @Route("/{username}", name="user_show", methods="GET")
      *
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @param User $user
+     *
+     * @param PaginatorInterface $paginator
      *
      * @return Response
      */
-    public function show(User $user): Response
-    {
-        return $this->render('user/show.html.twig', ['user' => $user]);
+    public function show(
+      Request $request,
+      User $user,
+      PaginatorInterface $paginator
+    ): Response {
+        $pagination = $paginator->paginate(
+          $user->getGameCollections(),
+          $request->query->getInt('page', 1),
+          GameCollectionController::PAGE_LIMIT
+        );
+
+        return $this->render('user/show.html.twig', [
+          'user' => $user,
+          'pagination' => $pagination,
+        ]);
     }
 
     /**
@@ -252,12 +268,25 @@ class UserController extends AbstractController
      *     methods={"GET"}
      * )
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \App\Entity\Game $game
+     * @param PaginatorInterface $paginator
+     *
+     * @return Response
      */
-    public function showCollections(Game $game): Response
-    {
+    public function showCollections(
+      Request $request,
+      Game $game,
+      PaginatorInterface $paginator
+    ): Response {
+        $pagination = $paginator->paginate(
+          $this->getUser()->getGameCollections(),
+          $request->query->getInt('page', 1),
+          GameCollectionController::PAGE_LIMIT
+        );
+
         return $this->render('user/collections.html.twig', [
-          'game_collections' => $this->getUser()->getGameCollections(),
+          'pagination' => $pagination,
           'game' => $game,
         ]);
     }

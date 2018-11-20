@@ -11,10 +11,10 @@
 
             <h5>Created by: <a href="{{ path('user_show', {'username': username}) }}">{{ username }}</a></h5>
 
-            <div class="actions my-3">
+            <div class="actions mb-2">
                 {% if granted %}
-                    <a class="btn btn-primary m-1" href="{{ path('home_index') }}">Add a game</a>
-                    <div class="m-1 d-inline-block">
+                    <a class="btn btn-primary btn-sm mr-1" href="{{ path('home_index') }}">Add a game</a>
+                    <div class="d-inline-block">
                         {{ include('game_collection/_delete_form.html.twig') }}
                     </div>
                 {% endif %}
@@ -23,7 +23,7 @@
             {% embed 'game/_list.html.twig' with {'games': game_collection.paginatedGames(offset, page_limit)} %}
                 {% block buttons %}
                     {% if granted %}
-                            <a class="btn btn-primary btn-game-remove"
+                            <a class="btn btn-primary btn-sm btn-game-remove"
                                href="{{ path('game_collection_remove_game', {'id': game_collection.id, 'game_id': game.id}) }}"
                                data-csrf="{{ csrf_token('delete' ~ game.id) }}">
                                 Remove

@@ -7,6 +7,7 @@ use App\Entity\GameCollection;
 use App\FlashMessage\GameCollectionMessage as Flash;
 use App\Form\GameCollectionType;
 use App\Repository\GameCollectionRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,17 +19,31 @@ use Symfony\Component\Routing\Annotation\Route;
 class GameCollectionController extends AbstractController
 {
 
+    public const PAGE_LIMIT = 10;
+
     /**
      * @Route("/collections", name="game_collection_index", methods="GET")
      *
-     * @param GameCollectionRepository $collectionRepository
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param GameCollectionRepository $repo
+     *
+     * @param PaginatorInterface $paginator
      *
      * @return Response
      */
-    public function latest(GameCollectionRepository $collectionRepository
+    public function index(
+      Request $request,
+      GameCollectionRepository $repo,
+      PaginatorInterface $paginator
     ): Response {
+        $pagination = $paginator->paginate(
+          $repo->createQueryBuilder('gc'),
+          $request->query->getInt('page', 1),
+          self::PAGE_LIMIT
+        );
+
         return $this->render('game_collection/index.html.twig', [
-          'game_collections' => $collectionRepository->findBy([], null, 10),
+          'pagination' => $pagination,
         ]);
     }
 
@@ -75,7 +90,7 @@ class GameCollectionController extends AbstractController
       GameCollection $collection
     ): Response {
         $offset = 0;
-        $pageLimit = 4;
+        $pageLimit = GameController::PAGE_LIMIT;
 
         if ($request->isXmlHttpRequest() && $request->query->has('offset')) {
             $offset = $request->query->get('offset') + $pageLimit;
