@@ -10,6 +10,7 @@ use App\Repository\GameCollectionRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class GameCollectionController extends AbstractController
     /**
      * @Route("/collections", name="game_collection_index", methods="GET")
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      * @param GameCollectionRepository $repo
      *
      * @param PaginatorInterface $paginator
@@ -49,6 +50,7 @@ class GameCollectionController extends AbstractController
 
     /**
      * @Route("/collection/new", name="game_collection_new", methods="GET|POST")
+     * @IsGranted("ROLE_USER_CONFIRMED", message="You have to verify your email before you can do that.")
      *
      * @param Request $request
      *
@@ -80,8 +82,8 @@ class GameCollectionController extends AbstractController
     /**
      * @Route("/collection/{id}", name="game_collection_show", methods="GET")
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \App\Entity\GameCollection $collection
+     * @param Request $request
+     * @param GameCollection $collection
      *
      * @return Response
      */
@@ -122,7 +124,7 @@ class GameCollectionController extends AbstractController
      *     methods="GET|POST"
      * )
      * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
-     *
+
      * @param Request $request
      * @param GameCollection $collection
      *
@@ -154,7 +156,7 @@ class GameCollectionController extends AbstractController
      *     name="game_collection_delete",
      *     methods="DELETE"
      * )
-     * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
+     * @Security("is_granted('ROLE_USER_CONFIRMED') and is_granted('GAME_COLLECTION_EDIT', collection)")
      *
      * @param Request $request
      * @param GameCollection $collection
@@ -190,7 +192,7 @@ class GameCollectionController extends AbstractController
      *     methods="PUT"
      * )
      * @ParamConverter("game", options={"id" = "game_id"})
-     * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
+     * @Security("is_granted('ROLE_USER_CONFIRMED') and is_granted('GAME_COLLECTION_EDIT', collection)")
      *
      * @param GameCollection $collection
      * @param Game $game
@@ -217,7 +219,7 @@ class GameCollectionController extends AbstractController
      *     methods="DELETE"
      * )
      * @ParamConverter("game", options={"id" = "game_id"})
-     * @IsGranted("GAME_COLLECTION_EDIT", subject="collection")
+     * @Security("is_granted('ROLE_USER_CONFIRMED') and is_granted('GAME_COLLECTION_EDIT', collection)")
      *
      * @param Request $request
      * @param GameCollection $collection

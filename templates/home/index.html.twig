@@ -4,17 +4,17 @@
 
 {% block body %}
     <div class="row">
-        <div class="col-xs-12 col-lg-8 mx-auto js-search-container">
+        <div class="col-xs-12 col-lg-8 mt-3 mx-auto js-search-container">
             <div class="input-group ">
                 <input type="text" class="form-control js-search-box" placeholder="Enter a game's name, edition etc.">
                 <div class="input-group-append">
-                    <button class="btn btn-primary js-search-btn" type="button">Search</button>
+                    <button class="btn btn-primary js-search-btn" >Search</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <h1 class="text-center my-5">Recently added games</h1>
+    <h1 class="text-center my-4">Recently added games</h1>
 
     <div class="col-xs-12 col-lg-10 mx-auto">
         {{ include('game/_list.html.twig') }}

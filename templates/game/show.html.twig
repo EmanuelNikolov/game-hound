@@ -6,14 +6,14 @@
     <div class="row mx-0 mx-xl-5">
         <div class="col-xs-12 col-md-3 mb-4">
             <img class="img-fluid rounded" alt="{{ game.name }}" src="{{ game.coverUrl('cover_big') }}">
-            {% if is_granted('ROLE_USER_CONFIRMED') %}
-                <a href="{{ path('user_show_collections', {'id': game.id}) }}" type="button" class="btn btn-primary mt-4">
+            <div class="d-block btn-group">
+                <a href="{{ path('user_show_collections', {'id': game.id}) }}"
+                   class="btn btn-primary mt-4">
                     Add To Collection
                 </a>
-            {% endif %}
-
+            </div>
         </div>
-        <div class="col-xs-12 col-md-8">
+        <div class="col-xs-12 col-md-8 mx-auto">
             <h1>{{ game.name }}</h1>
             <p>Release Date: {{ game.firstReleaseDate|date("d F Y") }}</p>
             <p>{{ game.summary }}</p>

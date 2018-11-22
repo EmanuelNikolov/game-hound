@@ -9,9 +9,9 @@ use Symfony\Component\EventDispatcher\Event;
 class UserEvent extends Event
 {
 
-    public const REGISTER_REQUEST = 'user.register.request';
+    public const SIGNUP_REQUEST = 'user.signup.request';
 
-    public const REGISTER_CONFIRM = 'user.register.confirm';
+    public const EMAIL_CONFIRM_REQUEST = 'user.email_confirm.request';
 
     public const RESET_PASSWORD_REQUEST = 'user.reset_password.request';
     

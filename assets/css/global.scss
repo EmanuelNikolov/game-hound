@@ -14,16 +14,28 @@ $body-color: #e8e5e0;
 $table-dark-bg: #101012;
 $table-dark-color: $body-color;
 
+// Pagination
 $pagination-bg: $table-dark-bg;
 $pagination-border-color: $table-dark-bg;
 $pagination-color: $body-color;
-$pagination-disabled-bg: $body-bg;
+$pagination-disabled-bg: #252527;
+$pagination-disabled-border-color: $pagination-disabled-bg;
 $pagination-active-bg: $body-color;
 $pagination-active-border-color: $body-color;
 $pagination-active-color: $table-dark-bg;
 
+// Button colors
+$primary: #dc2133;
+$success: #00ac00;
+
+$hr-border-color: $body-color;
+
 @import "~bootstrap/scss/bootstrap";
 @import "loader.css";
+
+.bg-dark {
+  background-color: #101012 !important;
+}
 
 .card-title {
   font-size: 19px;
@@ -37,6 +49,22 @@ $pagination-active-color: $table-dark-bg;
   color: #ED1C24;
 }
 
-.bg-dark {
-  background-color: #101012 !important;
+.btn-link {
+  font-size: 1.25rem;
+  color: $body-color;
+}
+
+// Pagination Tweaks
+@media screen and (max-width: 400px) {
+  ul {
+    margin-bottom: 1rem;
+  }
+
+  .page-number {
+    display: none;
+  }
+
+  .page-item {
+    flex-grow: 1;
+  }
 }

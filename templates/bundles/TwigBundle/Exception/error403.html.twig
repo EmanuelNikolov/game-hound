@@ -1,0 +1,7 @@
+{% extends 'bundles/TwigBundle/Exception/error.html.twig' %}
+
+{% block message %}
+    {% if exception.message == 'You have to verify your email before you can do that.' %}
+        <p class="h2">{{ exception.message }}</p>
+    {% endif %}
+{% endblock %}

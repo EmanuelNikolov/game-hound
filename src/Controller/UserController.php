@@ -35,7 +35,7 @@ class UserController extends AbstractController
     /**
      * UserController constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param EntityManagerInterface $em
      * @param GuardAuthenticatorHandler $guardAuthenticatorHandler
      * @param UserLoginAuthenticator $userLoginAuthenticator
      * @param EventDispatcherInterface $eventDispatcher
@@ -53,15 +53,15 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/register", name="user_register", methods={"GET", "POST"})
+     * @Route("/signup", name="user_signup", methods={"GET", "POST"})
      *
      * @param Request $request
      *
-     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @param UserPasswordEncoderInterface $encoder
      *
      * @return Response
      */
-    public function register(
+    public function signUp(
       Request $request,
       UserPasswordEncoderInterface $encoder
     ): Response {
@@ -76,12 +76,12 @@ class UserController extends AbstractController
 
             $event = new UserEvent($user);
             $this->eventDispatcher
-              ->dispatch(UserEvent::REGISTER_REQUEST, $event);
+              ->dispatch(UserEvent::SIGNUP_REQUEST, $event);
 
             $this->em->persist($user);
             $this->em->flush();
 
-            $this->addFlash('success', Flash::REGISTRATION_CONFIRMED);
+            $this->addFlash('success', Flash::SIGNUP_SUCCESS);
 
             return $this->guardAuthenticatorHandler
               ->authenticateUserAndHandleSuccess(
@@ -99,7 +99,7 @@ class UserController extends AbstractController
 
     /**
      * @Route(
-     *     "/register/confirm/{confirmationToken}",
+     *     "/signup/confirm/{confirmationToken}",
      *     name="user_email_confirm",
      *     methods={"GET"}
      * )
@@ -109,7 +109,7 @@ class UserController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
-    public function registerConfirm(User $user): Response
+    public function emailConfirm(User $user): Response
     {
         if (!$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', Flash::INVALID_TOKEN);
@@ -124,11 +124,11 @@ class UserController extends AbstractController
         }
 
         $event = new UserEvent($user);
-        $this->eventDispatcher->dispatch(UserEvent::REGISTER_CONFIRM, $event);
+        $this->eventDispatcher->dispatch(UserEvent::EMAIL_CONFIRM_REQUEST, $event);
 
         $this->em->flush();
 
-        $this->addFlash('success', Flash::REGISTRATION_SUCCESS);
+        $this->addFlash('success', Flash::EMAIL_CONFIRM_SUCCESS);
 
         return $this->render('user/show.html.twig', ['user' => $user]);
     }
@@ -237,7 +237,7 @@ class UserController extends AbstractController
     /**
      * @Route("/{username}", name="user_show", methods="GET")
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      * @param User $user
      *
      * @param PaginatorInterface $paginator
@@ -268,8 +268,8 @@ class UserController extends AbstractController
      *     methods={"GET"}
      * )
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \App\Entity\Game $game
+     * @param Request $request
+     * @param Game $game
      * @param PaginatorInterface $paginator
      *
      * @return Response
@@ -285,7 +285,7 @@ class UserController extends AbstractController
           GameCollectionController::PAGE_LIMIT
         );
 
-        return $this->render('user/collections.html.twig', [
+        return $this->render('user/show_collections.html.twig', [
           'pagination' => $pagination,
           'game' => $game,
         ]);
@@ -293,6 +293,10 @@ class UserController extends AbstractController
 
     /**
      * @Route("/profile/edit", name="user_edit", methods={"GET|POST"})
+     * @param Request $request
+     * @param UserPasswordEncoderInterface $encoder
+     *
+     * @return Response
      */
     public function update(
       Request $request,
@@ -310,7 +314,7 @@ class UserController extends AbstractController
 
                 $event = new UserEvent($user);
                 $this->eventDispatcher->dispatch(
-                  UserEvent::REGISTER_REQUEST,
+                  UserEvent::SIGNUP_REQUEST,
                   $event
                 );
 

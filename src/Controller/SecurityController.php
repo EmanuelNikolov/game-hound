@@ -13,9 +13,9 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="security_login", methods={"GET", "POST"})
      *
-     * @param \Symfony\Component\Security\Http\Authentication\AuthenticationUtils $authenticationUtils
+     * @param AuthenticationUtils $authenticationUtils
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -36,13 +36,5 @@ class SecurityController extends AbstractController
     public function logout()
     {
         throw new \Exception("Shouldn't reach this!");
-    }
-
-    /**
-     * @Route("/admin")
-     */
-    public function admin()
-    {
-        $this->denyAccessUnlessGranted("ROLE_ADMIN");
     }
 }

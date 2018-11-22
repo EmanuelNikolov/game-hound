@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ status_text }}{% endblock %}
+
+{% block body %}
+    <h1>Error {{ status_code }} - {{ status_text }}</h1>
+    {% block message %}{% endblock %}
+    <hr>
+    <a class="btn btn-primary" href="{{ path('home_index') }}">Back to Homepage</a>
+{% endblock %}

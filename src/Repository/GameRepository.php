@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 
+use App\Controller\GameController;
 use App\Entity\Game;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -26,7 +27,7 @@ class GameRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('g')
           ->where('g.cover IS NOT NULL')
           ->orderBy('g.id', 'DESC')
-          ->setMaxResults(4)
+          ->setMaxResults(GameController::PAGE_LIMIT)
           ->getQuery()
           ->getResult()
           ;

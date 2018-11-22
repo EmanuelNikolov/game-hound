@@ -41,7 +41,7 @@ class UI {
     }
 
     showGames(games, firstCall = false) {
-        const deleteBtn =document.querySelector(".btn-game-remove");
+        const deleteBtn = document.querySelector(".btn-game-remove");
 
         const cards = games.map(game => {
             let imageUrl,
@@ -79,26 +79,27 @@ class UI {
     showLoadButton(xhr = {status: 200}, count = 4) {
         this.clearLoadButton();
 
-        let message, type;
+        let message, type, attr;
 
         if (xhr.status === 200) {
             this.offset += count;
 
             if (count === 0) {
-                message = "That's all folks ( ͡° < ͡°)炎炎炎炎";
-                type = "btn-default"
+                message = "That's all folks";
+                type = "btn-default disabled";
+                attr = "disabled";
             } else {
                 message = "Load More Games";
                 type = "btn-info";
             }
         } else {
-            message = "An error has occurred... ( ‾ ʖ̫ ‾)";
+            message = "An error has occurred";
             type = "btn-default";
         }
 
         const loadBtn = `
             <button class="btn btn-block btn-lg ${type} mb-4 js-load-btn" 
-                    type="button">
+                     ${attr}>
                     ${message}
             </button>
         `;

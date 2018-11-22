@@ -43,12 +43,12 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-          UserEvent::RESET_PASSWORD_REQUEST => 'handleResetPassword',
+          UserEvent::RESET_PASSWORD_REQUEST => 'handleResetPasswordRequest',
           UserEvent::RESET_PASSWORD_CONFIRM => 'handleResetPasswordConfirm',
         ];
     }
 
-    public function handleResetPassword(UserEvent $event)
+    public function handleResetPasswordRequest(UserEvent $event)
     {
         $user = $event->getUser();
         $resetPasswordToken = $this->tokenCreator->createToken();

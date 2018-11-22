@@ -10,11 +10,11 @@
 </head>
 <body>
     {% block navbar %}
-        {% set route = app.request.get('_route') %}
+        {% set route, user = app.request.get('_route'), app.user %}
 
         <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark py-1">
             <a class="navbar-brand" href="{{ path('home_index') }}">Game Hound</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu"
+            <button class="navbar-toggler"  data-toggle="collapse" data-target="#navbarMenu"
                     aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -25,34 +25,39 @@
                         <a class="nav-link" href="{{ path('home_index') }}">Home <span class="sr-only">(current)</span></a>
                     </li>
 
-                    {% if not app.user %}
+                    {% if user %}
 
-                    <li class="nav-item {{ route starts with 'security' ? 'active' }}">
-                        <a class="nav-link" href="{{ path('security_login') }}">Login</a>
-                    </li>
-                    <li class="{{ route == "user_register" ? 'active' }}">
-                        <a class="nav-link" href="{{ path('user_register') }}">Register</a>
-                    </li>
+                        <li class="nav-item {{ route starts with 'user' ? 'active' }}">
+                            <a class="nav-link"
+                               href="{{ path('user_show', {username: user.username}) }}">Profile</a>
+                        </li>
 
-                    {% else %}
+                    {% endif %}
 
-                    <li class="nav-item {{ route starts with 'user' ? 'active' }}">
-                        <a class="nav-link"
-                           href="{{ path('user_show', {username: app.user.username}) }}">Profile</a>
-                    </li>
                     <li class="nav-item {{ route starts with 'game_collection' ? 'active' }}">
                         <a class="nav-link" href="{{ path('game_collection_index') }}">
                             Collections
                         </a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ml-auto m-2">
-                    <li class="navbar-btn">
-                        <a class="btn btn-sm btn-success" href="{{ path('security_logout') }}">Logout</a>
-                    </li>
 
-                    {% endif %}
-                </ul>
+                {% if not user %}
+
+                    <ul class="navbar-nav ml-lg-auto m-2">
+                        <li class="navbar-btn">
+                            <a class="btn btn-sm btn-success" href="{{ path('security_login') }}">Log In/Sign Up</a>
+                        </li>
+                    </ul>
+
+                {% else %}
+
+                    <ul class="navbar-nav ml-auto m-2">
+                        <li class="navbar-btn">
+                            <a class="btn btn-sm btn-success" href="{{ path('security_logout') }}">Log Out</a>
+                        </li>
+                    </ul>
+
+                {% endif %}
             </div>
         </nav>
     {% endblock %}
@@ -62,7 +67,6 @@
     </div>
 
     <div class="container-fluid text-center">
-
         {% block body %}{% endblock %}
     </div>
 

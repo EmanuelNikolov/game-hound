@@ -40,12 +40,12 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-          UserEvent::REGISTER_REQUEST => 'handleRegisterRequest',
-          UserEvent::REGISTER_CONFIRM => 'handleRegisterConfirm',
+          UserEvent::SIGNUP_REQUEST => 'handleSignUpRequest',
+          UserEvent::EMAIL_CONFIRM_REQUEST => 'handleEmailConfirmRequest',
         ];
     }
 
-    public function handleRegisterRequest(UserEvent $event)
+    public function handleSignUpRequest(UserEvent $event)
     {
         $user = $event->getUser();
         $emailConfirmToken = $this->tokenCreator->createToken();
@@ -57,7 +57,7 @@ class EmailConfirmationSubscriber implements EventSubscriberInterface
         $this->mailer->sendEmailConfirmationMessage($user);
     }
 
-    public function handleRegisterConfirm(UserEvent $event)
+    public function handleEmailConfirmRequest(UserEvent $event)
     {
         $user = $event->getUser();
         $user->setConfirmationToken(null);

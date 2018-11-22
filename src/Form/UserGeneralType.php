@@ -56,7 +56,7 @@ class UserGeneralType extends AbstractType
                   $form->remove('username');
                   $form->remove('signup');
                   $form->add('submit', SubmitType::class, [
-                    'label' => 'Edit Profile',
+                    'label' => 'Edit',
                     'attr' => ['class' => 'btn-primary'],
                   ]);
               }

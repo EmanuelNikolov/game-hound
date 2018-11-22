@@ -303,11 +303,11 @@ class User implements UserInterface, EquatableInterface
      * However, you do not need to compare every attribute, but only those that
      * are relevant for assessing whether re-authentication is required.
      *
-     * @param \Symfony\Component\Security\Core\User\UserInterface $user
+     * @param UserInterface|nullz $user
      *
      * @return bool
      */
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(?UserInterface $user)
     {
         if (!$user instanceof self) {
             return false;

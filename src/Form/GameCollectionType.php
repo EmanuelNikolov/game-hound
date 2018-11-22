@@ -17,7 +17,7 @@ class GameCollectionType extends AbstractType
         $builder
           ->add('name', TextType::class)
           ->add('submit', SubmitType::class, [
-            'label' => 'Submit',
+            'label' => 'Create',
             'attr' => ['class' => 'btn-primary'],
           ]);
     }

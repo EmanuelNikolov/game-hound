@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Log In{% endblock %}
 
 {% block body %}
     {% embed 'default/form_container.html.twig' %}
@@ -50,6 +50,9 @@
                 </div>
                 <input name="login_token" value="{{ csrf_token("authenticate") }}" type="hidden">
             </form>
+            <hr>
+            <p>Don't have an account?</p>
+            <a href="{{ path('user_signup') }}" class="btn btn-primary">Sign Up</a>
         {% endblock %}
     {% endembed %}
 {% endblock %}

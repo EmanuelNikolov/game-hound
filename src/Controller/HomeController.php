@@ -13,9 +13,9 @@ class HomeController extends AbstractController
     /**
      * @Route("/", name="home_index", methods={"GET"})
      *
-     * @param \App\Repository\GameRepository $repo
+     * @param GameRepository $repo
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function index(GameRepository $repo): Response
     {

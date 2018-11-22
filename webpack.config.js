@@ -19,7 +19,7 @@ Encore
      */
     .addEntry("js/app", "./assets/js/app.js")
     .addEntry("js/search", "./assets/js/game-search/search.js")
-    .addEntry("js/collection", "./assets/js/game-collection.js")
+    .addEntry("js/collection", "./assets/js/game-collection/collection.js")
     .addStyleEntry("css/global", "./assets/css/global.scss")
 
 

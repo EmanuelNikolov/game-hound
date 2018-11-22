@@ -5,7 +5,11 @@
 {% block body %}
     <div class="row">
         <div class="col-xs-12 col-lg-10 mx-auto">
-            <h1 class="mb-4">Latest Collections</h1>
+            <h1>Latest Collections</h1>
+            <a href="{{ path('game_collection_new') }}"
+               class="btn btn-primary btn-sm mb-3">
+                Create a Collection
+            </a>
             {{ include('game_collection/_list.html.twig') }}
         </div>
     </div>

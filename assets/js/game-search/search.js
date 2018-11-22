@@ -1,4 +1,4 @@
-import {ui} from './search-ui';
+import {ui} from '../ui/ui';
 
 // Event Listeners
 ui.box.on("keypress", (e) => {

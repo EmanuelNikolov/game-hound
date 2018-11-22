@@ -1,4 +1,4 @@
-import {ui} from './game-search/search-ui';
+import {ui} from '../ui/ui';
 
 // Event Listeners
 $("body").on("click", ".js-load-btn", loadMore);

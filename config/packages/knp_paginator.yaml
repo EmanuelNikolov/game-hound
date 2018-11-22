@@ -1,3 +1,4 @@
 knp_paginator:
+  page_range: 3
   template:
     pagination: '@Pagination/bootstrap_v4_pagination.html.twig'
