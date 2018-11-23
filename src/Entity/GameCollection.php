@@ -43,6 +43,7 @@ class GameCollection
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Game")
      * @ORM\JoinTable(name="game_collections_games")
+     * @ORM\OrderBy({"id" = "DESC"})
      */
     private $games;
 

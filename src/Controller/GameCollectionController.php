@@ -69,8 +69,8 @@ class GameCollectionController extends AbstractController
 
             $this->addFlash('success', Flash::COLLECTION_CREATED);
 
-            return $this->redirectToRoute('user_show', [
-              'username' => $gameCollection->getUser()->getUsername(),
+            return $this->redirectToRoute('game_collection_show', [
+              'id' => $gameCollection->getId(),
             ]);
         }
 

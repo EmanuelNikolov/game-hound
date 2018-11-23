@@ -21,23 +21,43 @@
             {% embed 'game/_list.html.twig' with {'games': game_collection.paginatedGames(offset, page_limit)} %}
                 {% block buttons %}
                     {% if granted %}
-                            <a class="btn btn-primary btn-sm btn-game-remove"
-                               href="{{ path('game_collection_remove_game', {'id': game_collection.id, 'game_id': game.id}) }}"
-                               data-csrf="{{ csrf_token('delete' ~ game.id) }}">
-                                Remove
-                            </a>
+                        <a class="btn btn-primary btn-sm btn-game-remove"
+                           href="{{ path('game_collection_remove_game', {'id': game_collection.id, 'game_id': game.id}) }}"
+                           data-toggle="modal"
+                           data-target="#deleteGameModal">
+                            Remove
+                        </a>
                     {% endif %}
                 {% endblock %}
 
                 {% block load_button %}
                     {% if game_collection.games|length > page_limit %}
-                        <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn"
-                                >
+                        <button class="btn btn-block btn-lg btn-info mb-4 js-load-btn">
                             Load More Games
                         </button>
                     {% endif %}
                 {% endblock %}
             {% endembed %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteGameModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-body-p m-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a id="confirmDelete" class="btn btn-primary">Delete Collection</a>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

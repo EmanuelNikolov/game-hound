@@ -2,23 +2,34 @@ import {ui} from '../ui/ui';
 
 // Event Listeners
 $("body").on("click", ".js-load-btn", loadMore);
-ui.container.on("click", ".btn-game-remove", deleteGame);
+$("#deleteGameModal").on("show.bs.modal", handleModal);
+$("#confirmDelete").on("click", deleteGame);
+
+function handleModal(e) {
+    const removeBtn = $(e.relatedTarget),
+        modal = $(this),
+        gameName = removeBtn.prev().text();
+
+    ui.removeBtn = removeBtn;
+
+    modal.find(".modal-title").text(`Delete ${gameName}?`);
+    modal.find(".modal-body-p").text(`Are you sure you want to delete ${gameName}?`);
+    $("#confirmDelete").attr("href", removeBtn.attr("href"));
+}
 
 function deleteGame(e) {
-    if (confirm(`Are you sure you want to delete this collection?`)) {
-        const delBtn = e.target;
+    const confirmBtn = e.target;
 
-        $.ajax({
-            url: delBtn.href,
-            type: "DELETE",
-            data: `token=${delBtn.dataset.csrf}`,
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
+    $.ajax({
+        url: confirmBtn.href,
+        type: "DELETE"
+    })
+        .done(() => {
+            $(ui.removeBtn).parentsUntil(ui.container).remove();
+            ui.offset--;
         })
-            .done(() => $(delBtn).parentsUntil(ui.container).remove())
-            .fail(() => ui.showAlert("An error occurred while trying to delete the game."));
-    }
+        .fail(() => ui.showAlert("An error occurred while trying to delete the game."))
+        .always(() => $("#deleteGameModal").modal("hide"));
 
     e.preventDefault();
 }
@@ -30,7 +41,8 @@ function loadMore() {
         beforeSend: () => ui.showSpinner()
     })
         .done((games, status, xhr) => {
-            if (games.length === ui.offset) {
+            console.log(games, ui.offset);
+            if (games.length > 0) {
                 ui.showLoadButton(xhr, games.length);
             } else {
                 ui.showLoadButton(xhr, 0);
@@ -40,4 +52,5 @@ function loadMore() {
         })
         .fail(xhr => ui.showLoadButton(xhr))
         .always(() => ui.clearSpinner());
+    console.log(ui.offset);
 }

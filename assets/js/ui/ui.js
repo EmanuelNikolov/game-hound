@@ -45,13 +45,12 @@ class UI {
 
         const cards = games.map(game => {
             let imageUrl,
-                {cloudinary_id, url} = {...game.cover}
-            ;
+                {cloudinary_id, url} = {...game.cover};
 
             if (cloudinary_id !== undefined) {
                 imageUrl = this.generateImageUrl(cloudinary_id);
             } else {
-                imageUrl = this.generateImageUrl(url);
+                imageUrl = url;
             }
 
             return (`
@@ -84,9 +83,9 @@ class UI {
         if (xhr.status === 200) {
             this.offset += count;
 
-            if (count === 0) {
+            if (count < 4) {
                 message = "That's all folks";
-                type = "btn-default disabled";
+                type = "btn-default";
                 attr = "disabled";
             } else {
                 message = "Load More Games";

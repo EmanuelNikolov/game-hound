@@ -26,6 +26,7 @@ class GameCollectionRepository extends ServiceEntityRepository
       int $limit
     ): Criteria {
         return Criteria::create()
+          ->orderBy(['id' => Criteria::DESC])
           ->setFirstResult($offset)
           ->setMaxResults($limit);
     }

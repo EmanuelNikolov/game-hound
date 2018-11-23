@@ -149,8 +149,6 @@ class Game
             $this->cover = array_key_exists('cloudinary_id', $cover)
               ? $cover['cloudinary_id']
               : $cover['url'];
-        } else {
-            $this->cover = self::FALLBACK_IMG;
         }
     }
 
