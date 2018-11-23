@@ -4,14 +4,11 @@ namespace App\Service\Mailer;
 
 
 use App\Entity\User;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class Mailer implements MailerInterface
 {
-
-    private const CONFIRM_EMAIL_TEMPLATE = "email/confirmation.html.twig";
-
-    private const PASSWORD_RESET_EMAIL_TEMPLATE = "email/password_reset.html.twig";
 
     /**
      * @var \Twig_Environment
@@ -57,9 +54,11 @@ class Mailer implements MailerInterface
     public function sendEmailConfirmationMessage(User $user)
     {
         $templateName = $this->parameters['confirmation'];
-        $confirmationURL = $this->router->generate('user_email_confirm', [
-          'confirmationToken' => $user->getConfirmationToken(),
-        ]);
+        $confirmationURL = $this->router->generate(
+          'user_email_confirm',
+          ['confirmationToken' => $user->getConfirmationToken()],
+          UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $templateData = [
           'user' => $user,
@@ -77,9 +76,11 @@ class Mailer implements MailerInterface
     public function sendPasswordResetMessage(User $user)
     {
         $templateName = $this->parameters['reset_password'];
-        $resetPasswordURL = $this->router->generate('user_reset_password', [
-          'confirmationToken' => $user->getConfirmationToken(),
-        ]);
+        $resetPasswordURL = $this->router->generate(
+          'user_reset_password_confirm',
+          ['confirmationToken' => $user->getConfirmationToken()],
+          UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $templateData = [
           'user' => $user,
@@ -107,7 +108,7 @@ class Mailer implements MailerInterface
         // TODO: add simple text part, maybe template data object too?
         $message = (new \Swift_Message())
           ->setSubject($subject)
-          ->setFrom($from)
+          ->setFrom([$from => 'Game Hound'])
           ->setTo($to)
           ->setBody($body, 'text/html');
 

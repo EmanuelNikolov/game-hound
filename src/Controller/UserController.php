@@ -124,13 +124,16 @@ class UserController extends AbstractController
         }
 
         $event = new UserEvent($user);
-        $this->eventDispatcher->dispatch(UserEvent::EMAIL_CONFIRM_REQUEST, $event);
+        $this->eventDispatcher->dispatch(UserEvent::EMAIL_CONFIRM_REQUEST,
+          $event);
 
         $this->em->flush();
 
         $this->addFlash('success', Flash::EMAIL_CONFIRM_SUCCESS);
 
-        return $this->render('user/show.html.twig', ['user' => $user]);
+        return $this->redirectToRoute('user_show', [
+          'username' => $user->getUsername(),
+        ]);
     }
 
     /**
@@ -176,7 +179,7 @@ class UserController extends AbstractController
     /**
      * @Route(
      *     "/reset_password/confirm/{confirmationToken}",
-     *     name="reset_password_confirm",
+     *     name="user_reset_password_confirm",
      *     methods={"GET", "POST"}
      * )
      *
@@ -185,7 +188,7 @@ class UserController extends AbstractController
      *
      * @param UserPasswordEncoderInterface $encoder
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return Response
      * @throws \Exception
      */
     public function resetPasswordConfirm(
@@ -286,8 +289,8 @@ class UserController extends AbstractController
         );
 
         return $this->render('user/show_collections.html.twig', [
-          'pagination' => $pagination,
           'game' => $game,
+          'pagination' => $pagination,
         ]);
     }
 

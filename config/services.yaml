@@ -9,7 +9,7 @@ parameters:
     mailer.user.templates:
       confirmation: 'email/confirmation.html.twig'
       reset_password: 'email/reset_password.html.twig'
-      from_email: 'tester@abv.bg'
+      from_email: 'security@gamehound.emanuelnikolov.tech'
 
 
 services:
