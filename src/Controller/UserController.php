@@ -104,12 +104,13 @@ class UserController extends AbstractController
      *     methods={"GET"}
      * )
      *
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @param User $user
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      * @throws \Exception
      */
-    public function emailConfirm(User $user): Response
+    public function emailConfirm(Request $request, User $user): Response
     {
         if (!$user->isConfirmationTokenNonExpired()) {
             $this->addFlash('danger', Flash::INVALID_TOKEN);
@@ -131,9 +132,13 @@ class UserController extends AbstractController
 
         $this->addFlash('success', Flash::EMAIL_CONFIRM_SUCCESS);
 
-        return $this->redirectToRoute('user_show', [
-          'username' => $user->getUsername(),
-        ]);
+        return $this->guardAuthenticatorHandler
+          ->authenticateUserAndHandleSuccess(
+            $user,
+            $request,
+            $this->userLoginAuthenticator,
+            'main'
+          );
     }
 
     /**
@@ -335,9 +340,13 @@ class UserController extends AbstractController
 
             $this->em->flush();
 
-            return $this->redirectToRoute('user_show', [
-              'username' => $user->getUsername(),
-            ]);
+            return $this->guardAuthenticatorHandler
+              ->authenticateUserAndHandleSuccess(
+                $user,
+                $request,
+                $this->userLoginAuthenticator,
+                'main'
+              );
         }
 
         return $this->render('user/edit.html.twig', [

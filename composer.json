@@ -30,7 +30,6 @@
         "symfony/yaml": "*"
     },
     "require-dev": {
-        "easycorp/easy-deploy-bundle": "^1.0",
         "symfony/debug-pack": "*",
         "symfony/dotenv": "*",
         "symfony/maker-bundle": "^1.0",
@@ -46,7 +45,6 @@
     },
     "autoload": {
         "psr-4": {
-            "EN\\IgdbApiBundle\\": "lib/IgdbApiBundle",
             "App\\": "src/"
         }
     },

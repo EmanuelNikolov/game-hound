@@ -8,6 +8,7 @@
         {% block form_body %}
             {% if error %}
                 <div class="alert alert-danger" role="alert">
+                    <span class="form-error-icon badge badge-danger text-uppercase">DANGER</span>
                     {{ error.messageKey|trans(error.messageData, 'security') }}
                 </div>
             {% endif %}
