@@ -1,4 +1,4 @@
 # Get your credentials by signing up here: https://api.igdb.com/admin and put them in your .env file
 en_igdb_api:
-    base_url: '%env(GAME_HOUND_IGDB_BASE_URL)%'
-    api_key: '%env(GAME_HOUND_IGDB_API_KEY)%'
+    base_url: '%env(GAME_HOUND_BASE_URL)%'
+    api_key: '%env(GAME_HOUND_API_KEY)%'

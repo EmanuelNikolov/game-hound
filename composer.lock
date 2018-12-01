@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6caa91d994fe66eaa008c2d3eb9f94d3",
+    "content-hash": "bf203f0918db3bbec1bc9dafca882c00",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1234,16 +1234,16 @@
         },
         {
             "name": "emanuilnikolov/igdb-api-bundle",
-            "version": "dev-master",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/EmanuilNikolov/IgdbApiBundle.git",
-                "reference": "a274aea9438208ae8d756eda8a07e867ec29d9cd"
+                "url": "https://github.com/EmanuelNikolov/IgdbApiBundle.git",
+                "reference": "69bd0797410ca28a979522a7e4e2b01e3b2b0607"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EmanuilNikolov/IgdbApiBundle/zipball/a274aea9438208ae8d756eda8a07e867ec29d9cd",
-                "reference": "a274aea9438208ae8d756eda8a07e867ec29d9cd",
+                "url": "https://api.github.com/repos/EmanuelNikolov/IgdbApiBundle/zipball/69bd0797410ca28a979522a7e4e2b01e3b2b0607",
+                "reference": "69bd0797410ca28a979522a7e4e2b01e3b2b0607",
                 "shasum": ""
             },
             "require": {
@@ -1269,12 +1269,12 @@
             ],
             "authors": [
                 {
-                    "name": "Emanuil Nikolov",
+                    "name": "Emanuel Nikolov",
                     "email": "enikolov.intl@gmail.com"
                 }
             ],
             "description": "Symfony Wrapper for IGDB.com API.",
-            "time": "2018-11-15T22:02:58+00:00"
+            "time": "2018-11-26T00:01:40+00:00"
         },
         {
             "name": "fig/link-util",
@@ -6380,9 +6380,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "emanuilnikolov/igdb-api-bundle": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

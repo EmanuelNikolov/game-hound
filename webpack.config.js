@@ -21,6 +21,7 @@ Encore
     .addEntry("js/search", "./assets/js/game-search/search.js")
     .addEntry("js/collection", "./assets/js/game-collection/collection.js")
     .addStyleEntry("css/global", "./assets/css/global.scss")
+    .copyFiles({from: "./assets/img", to: "img/[name].[ext]"})
 
 
     /*

@@ -13,8 +13,9 @@
         {% set route, user = app.request.get('_route'), app.user %}
 
         <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark py-1">
-            <a class="navbar-brand" href="{{ path('home_index') }}">Game Hound</a>
-            <button class="navbar-toggler"  data-toggle="collapse" data-target="#navbarMenu"
+                <img src="{{ asset('build/img/game-hound-logo.svg') }}" class="navbar-brand" width="180px" alt="Game Hound">
+
+            <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu"
                     aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
