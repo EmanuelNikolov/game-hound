@@ -42,7 +42,10 @@
                             Remember Me
                         </label>
                     </div>
-                    <a href="{{ path('user_reset_password') }}">Forgot Password?</a>
+                    <div class="form-check-inline">
+                        <a href="{{ path('user_reset_password') }}"><span
+                                    class="text-nowrap">Forgot Password?</span></a>
+                    </div>
                 </div>
                 <div class="form-group">
                     <button type="submit"

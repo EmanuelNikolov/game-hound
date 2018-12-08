@@ -118,12 +118,6 @@ class UserController extends AbstractController
             return $this->redirectToRoute('home_index');
         }
 
-        if (!$user->isEqualTo($this->getUser())) {
-            $this->addFlash('danger', Flash::EMAIL_CONFIRM_USER_DIFF);
-
-            return $this->redirectToRoute('home_index');
-        }
-
         $event = new UserEvent($user);
         $this->eventDispatcher->dispatch(UserEvent::EMAIL_CONFIRM_REQUEST,
           $event);
