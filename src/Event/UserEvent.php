@@ -14,13 +14,18 @@ class UserEvent extends Event
     public const EMAIL_CONFIRM_REQUEST = 'user.email_confirm.request';
 
     public const RESET_PASSWORD_REQUEST = 'user.reset_password.request';
-    
+
     public const RESET_PASSWORD_CONFIRM = 'user.reset_password.confirm';
 
     /**
      * @var User
      */
     private $user;
+
+    /**
+     * @var array
+     */
+    private $flashMessage;
 
     /**
      * RegistrationSuccessEvent constructor.
@@ -48,6 +53,25 @@ class UserEvent extends Event
     public function setUser(User $user): self
     {
         $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFlashMessage(): ?array
+    {
+        return $this->flashMessage;
+    }
+
+    /**
+     * @param array $flashMessage
+     *
+     * @return UserEvent
+     */
+    public function setFlashMessage(array $flashMessage): UserEvent
+    {
+        $this->flashMessage = $flashMessage;
         return $this;
     }
 }

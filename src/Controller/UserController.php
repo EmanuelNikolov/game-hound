@@ -165,8 +165,7 @@ class UserController extends AbstractController
 
                 $this->em->flush();
 
-                $this->addFlash('success',
-                  Flash::RESET_PASSWORD_REQUEST_SUCCESS);
+                $this->addFlash(...$event->getFlashMessage());
             }
         }
 

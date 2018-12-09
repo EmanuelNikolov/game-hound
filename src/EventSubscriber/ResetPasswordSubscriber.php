@@ -9,10 +9,13 @@
 namespace App\EventSubscriber;
 
 
+use App\Entity\User;
 use App\Event\UserEvent;
+use App\FlashMessage\UserMessage;
 use App\Service\Mailer\MailerInterface;
 use App\Utils\TokenCreatorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Security\Core\Security;
 
 class ResetPasswordSubscriber implements EventSubscriberInterface
 {
@@ -27,12 +30,19 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
      */
     private $tokenCreator;
 
+    /**
+     * @var Security
+     */
+    private $security;
+
     public function __construct(
       MailerInterface $mailer,
-      TokenCreatorInterface $tokenCreator
+      TokenCreatorInterface $tokenCreator,
+      Security $security
     ) {
         $this->mailer = $mailer;
         $this->tokenCreator = $tokenCreator;
+        $this->security = $security;
     }
 
     /**
@@ -51,13 +61,19 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     public function handleResetPasswordRequest(UserEvent $event)
     {
         $user = $event->getUser();
-        $resetPasswordToken = $this->tokenCreator->createToken();
-        $user->setConfirmationToken($resetPasswordToken);
 
-        $dto = (new \DateTimeImmutable())->add(new \DateInterval('P1D'));
-        $user->setConfirmationTokenRequestedAt($dto);
+        if (in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
+            $event->setFlashMessage(['danger', UserMessage::RESET_PASSWORD_FAIL]);
+        } else {
+            $resetPasswordToken = $this->tokenCreator->createToken();
+            $user->setConfirmationToken($resetPasswordToken);
 
-        $this->mailer->sendPasswordResetMessage($user);
+            $dto = (new \DateTimeImmutable())->add(new \DateInterval('P1D'));
+            $user->setConfirmationTokenRequestedAt($dto);
+
+            $this->mailer->sendPasswordResetMessage($user);
+            $event->setFlashMessage(['success', UserMessage::RESET_PASSWORD_REQUEST_SUCCESS]);
+        }
     }
 
     public function handleResetPasswordConfirm(UserEvent $event)
