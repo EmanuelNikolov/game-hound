@@ -23,11 +23,6 @@ class UserEvent extends Event
     private $user;
 
     /**
-     * @var array
-     */
-    private $flashMessage;
-
-    /**
      * RegistrationSuccessEvent constructor.
      *
      * @param User $user
@@ -53,25 +48,6 @@ class UserEvent extends Event
     public function setUser(User $user): self
     {
         $this->user = $user;
-        return $this;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getFlashMessage(): ?array
-    {
-        return $this->flashMessage;
-    }
-
-    /**
-     * @param array $flashMessage
-     *
-     * @return UserEvent
-     */
-    public function setFlashMessage(array $flashMessage): UserEvent
-    {
-        $this->flashMessage = $flashMessage;
         return $this;
     }
 }

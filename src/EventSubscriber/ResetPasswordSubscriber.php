@@ -15,7 +15,7 @@ use App\FlashMessage\UserMessage;
 use App\Service\Mailer\MailerInterface;
 use App\Utils\TokenCreatorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ResetPasswordSubscriber implements EventSubscriberInterface
 {
@@ -31,18 +31,18 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     private $tokenCreator;
 
     /**
-     * @var Security
+     * @var SessionInterface
      */
-    private $security;
+    private $session;
 
     public function __construct(
       MailerInterface $mailer,
       TokenCreatorInterface $tokenCreator,
-      Security $security
+    SessionInterface $session
     ) {
         $this->mailer = $mailer;
         $this->tokenCreator = $tokenCreator;
-        $this->security = $security;
+        $this->session = $session;
     }
 
     /**
@@ -61,9 +61,10 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
     public function handleResetPasswordRequest(UserEvent $event)
     {
         $user = $event->getUser();
+        $bag = $this->session->getFlashbag();
 
         if (in_array(User::ROLE_USER_UNCONFIRMED, $user->getRoles())) {
-            $event->setFlashMessage(['danger', UserMessage::RESET_PASSWORD_FAIL]);
+            $bag->add('danger', UserMessage::RESET_PASSWORD_FAIL);
         } else {
             $resetPasswordToken = $this->tokenCreator->createToken();
             $user->setConfirmationToken($resetPasswordToken);
@@ -72,7 +73,7 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
             $user->setConfirmationTokenRequestedAt($dto);
 
             $this->mailer->sendPasswordResetMessage($user);
-            $event->setFlashMessage(['success', UserMessage::RESET_PASSWORD_REQUEST_SUCCESS]);
+            $bag->add('success', UserMessage::RESET_PASSWORD_REQUEST_SUCCESS);
         }
     }
 
@@ -81,5 +82,7 @@ class ResetPasswordSubscriber implements EventSubscriberInterface
         $user = $event->getUser();
         $user->setConfirmationToken(null);
         $user->setConfirmationTokenRequestedAt(null);
+
+        $this->session->getFlashBag()->add('success', Flash::RESET_PASSWORD_SUCCESS);
     }
 }

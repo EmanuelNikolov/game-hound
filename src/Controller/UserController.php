@@ -164,8 +164,6 @@ class UserController extends AbstractController
                   ->dispatch(UserEvent::RESET_PASSWORD_REQUEST, $event);
 
                 $this->em->flush();
-
-                $this->addFlash(...$event->getFlashMessage());
             }
         }
 
@@ -206,10 +204,6 @@ class UserController extends AbstractController
             return $this->redirectToRoute('user_reset_password');
         }
 
-        $event = new UserEvent($user);
-        $this->eventDispatcher
-          ->dispatch(UserEvent::RESET_PASSWORD_CONFIRM, $event);
-
         $form = $this->createForm(UserNewPasswordType::class);
         $form->handleRequest($request);
 
@@ -219,7 +213,9 @@ class UserController extends AbstractController
             $user->setPassword($password);
             $this->em->flush();
 
-            $this->addFlash('success', Flash::RESET_PASSWORD_SUCCESS);
+            $event = new UserEvent($user);
+            $this->eventDispatcher
+              ->dispatch(UserEvent::RESET_PASSWORD_CONFIRM, $event);
 
             return $this->guardAuthenticatorHandler
               ->authenticateUserAndHandleSuccess(
